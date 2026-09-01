@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Préstamos - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-warning mb-1">
+                <i class="bi bi-journal-arrow-down"></i> Reporte de Préstamos
+            </h2>
+            <p class="text-muted mb-0">{{ fecha_inicio.strftime('%d/%m/%Y') }} - {{ fecha_fin.strftime('%d/%m/%Y') }}</p>
+        </div>
+        <div class="text-end">
+            <a href="{{ url_for('reportes.filtros', tipo='prestamos') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-funnel"></i> Cambiar Filtros
+            </a>
+            <a href="{{ url_for('reportes.descargar_pdf', tipo='prestamos', fecha_inicio=fecha_inicio.strftime('%Y-%m-%d'), fecha_fin=fecha_fin.strftime('%Y-%m-%d'), estado=estado_filtro|default('')) }}" 
+               class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.total|default(0) }}</h3>
+                    <small>Total Préstamos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.activos|default(0) }}</h3>
+                    <small>Activos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-secondary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.devueltos|default(0) }}</h3>
+                    <small>Devueltos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-danger text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.vencidos|default(0) }}</h3>
+                    <small>Vencidos</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de barras simple con CSS -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light fw-bold text-secondary">
+            <i class="bi bi-bar-chart"></i> Préstamos por Mes (últimos 6 meses)
+        </div>
+        <div class="card-body bg-light">
+            <div class="d-flex align-items-end justify-content-around" style="height: 200px;">
+                {% for mes in prestamos_por_mes %}
+                <div class="text-center" style="width: 14%;">
+                    <small class="d-block mb-1 fw-bold">{{ mes.cantidad }}</small>
+                    <div class="bg-warning rounded-top mx-auto" style="width: 60%; height: {{ mes.porcentaje }}%; min-height: 20px;"></div>
+                    <small class="d-block mt-1 text-muted">{{ mes.nombre }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla detallada -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <i class="bi bi-table"></i> Detalle de Préstamos
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-warning">
+                    <tr>
+                        <th>ID</th>
+                        <th>Estudiante</th>
+                        <th>Libro</th>
+                        <th>Fecha Préstamo</th>
+                        <th>Devolución</th>
+                        <th>Estado</th>
+                        <th>Bibliotecario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in prestamos %}
+                    <tr class="{% if p.estado == 'vencido' %}table-danger{% elif p.estado == 'activo' %}table-primary{% endif %}">
+                        <td class="font-monospace">#{{ p.id }}</td>
+                        <td>{{ p.nombre_estudiante }}</td>
+                        <td>{{ p.titulo_libro }}</td>
+                        <td>{{ p.fecha_prestamo.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            {% if p.estado == 'devuelto' %}
+                                {{ p.fecha_devolucion_real.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                {{ p.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if p.estado == 'activo' %}bg-primary
+                                {% elif p.estado == 'devuelto' %}bg-success
+                                {% elif p.estado == 'vencido' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ p.estado|capitalize }}
+                            </span>
+                        </td>
+                        <td>{{ p.nombre_bibliotecario }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if not prestamos %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No hay préstamos en este período</h4>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

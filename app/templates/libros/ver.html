@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}{{ libro.titulo }} - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('libros.catalogo') }}">Catálogo</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ libro.titulo[:50] }}{% if libro.titulo|length > 50 %}...{% endif %}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Columna izquierda: Portada y acciones -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0">
+                {% if libro.portada_url %}
+                <img src="{{ url_for('static', filename=libro.portada_url) }}" 
+                     class="card-img-top" alt="{{ libro.titulo }}"
+                     style="max-height: 450px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center text-white"
+                     style="height: 450px;">
+                    <i class="bi bi-book" style="font-size: 100px;"></i>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Acciones -->
+            <div class="d-grid gap-2 mt-3">
+                {% if session.rol in ['admin', 'bibliotecario'] %}
+                <a href="{{ url_for('libros.editar', id=libro.id) }}" class="btn btn-warning text-dark fw-bold">
+                    <i class="bi bi-pencil-square"></i> Editar Libro
+                </a>
+                {% endif %}
+                
+                {% if session.rol == 'estudiante' or session.rol == 'admin' %}
+                    {% if libro.ejemplares_disponibles > 0 %}
+                    <a href="{{ url_for('reservas.crear', libro_id=libro.id) }}" class="btn btn-success fw-bold">
+                        <i class="bi bi-bookmark-plus"></i> Reservar Ahora
+                    </a>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>
+                        <i class="bi bi-bookmark-x"></i> No hay ejemplares disponibles
+                    </button>
+                    {% endif %}
+                {% endif %}
+                
+                <a href="{{ url_for('libros.catalogo') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al Catálogo
+                </a>
+            </div>
+
+            <!-- Compartir -->
+            <div class="card shadow-sm border-0 mt-3">
+                <div class="card-body text-center bg-light">
+                    <small class="text-muted">ISBN: <span class="font-monospace fw-bold">{{ libro.isbn|default('N/A') }}</span></small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna derecha: Detalles -->
+        <div class="col-lg-8">
+            <!-- Título y calificación -->
+            <div class="mb-3">
+                <span class="badge bg-warning text-dark mb-2">
+                    {{ libro.codigo_dewey }} - {{ libro.categoria_nombre }}
+                </span>
+                <h1 class="h2 text-dark mb-2">{{ libro.titulo }}</h1>
+                <p class="text-muted mb-2">
+                    <i class="bi bi-person"></i> Por <strong>{{ libro.autores|default('Autor desconocido') }}</strong>
+                </p>
+                
+                <!-- Estrellas -->
+                <div class="mb-3">
+                    {% set estrellas = calificacion_promedio|default(0)|int %}
+                    {% for i in range(estrellas) %}
+                        <i class="bi bi-star-fill text-warning fs-5"></i>
+                    {% endfor %}
+                    {% for i in range(5 - estrellas) %}
+                        <i class="bi bi-star text-warning fs-5"></i>
+                    {% endfor %}
+                    <span class="ms-2 text-muted">{{ calificacion_promedio|default(0) }}/5 ({{ total_resenas|default(0) }} reseñas)</span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light p-0">
+                    <ul class="nav nav-tabs card-header-tabs" id="libroTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#info">
+                                <i class="bi bi-info-circle"></i> Información
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#ejemplares">
+                                <i class="bi bi-layers"></i> Ejemplares ({{ ejemplares|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link text-warning fw-bold" data-bs-toggle="tab" data-bs-target="#resenas">
+                                <i class="bi bi-star"></i> Reseñas ({{ total_resenas|default(0) }})
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        
+                        <!-- Tab Información -->
+                        <div class="tab-pane fade show active" id="info">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless table-sm">
+                                        <tr>
+                                            <td class="fw-bold text-secondary" style="width: 40%;">Editorial:</td>
+                                            <td>{{ libro.editorial|default('No registrada') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-secondary">Año:</td>
+                                            <td>{{ libro.anio_publicacion|default('No registrado') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-secondary">ISBN:</td>
+                                            <td class="font-monospace">{{ libro.isbn|default('N/A') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-secondary">Área:</td>
+                                            <td>{{ libro.area_conocimiento|default('No especificada') }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless table-sm">
+                                        <tr>
+                                            <td class="fw-bold text-secondary" style="width: 40%;">Estado:</td>
+                                            <td>
+                                                {% if libro.activo %}
+                                                    <span class="badge bg-success">Activo en catálogo</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-secondary">Disponibles:</td>
+                                            <td>
+                                                <span class="badge {% if libro.ejemplares_disponibles > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {{ libro.ejemplares_disponibles }} de {{ ejemplares|length }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold text-secondary">Solo lectura:</td>
+                                            <td>
+                                                {% if libro.tiene_solo_lectura %}
+                                                    <span class="text-info"><i class="bi bi-eye"></i> Hay ejemplares de consulta</span>
+                                                {% else %}
+                                                    <span class="text-muted">Todos son prestables</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <h6 class="fw-bold text-secondary">Descripción</h6>
+                            <p class="text-muted">{{ libro.descripcion|default('No hay descripción disponible para este libro.') }}</p>
+                        </div>
+
+                        <!-- Tab Ejemplares -->
+                        <div class="tab-pane fade" id="ejemplares">
+                            {% if ejemplares %}
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm">
+                                    <thead class="table-warning">
+                                        <tr>
+                                            <th>Código Barras</th>
+                                            <th>Estado</th>
+                                            <th>Tipo</th>
+                                            <th>Ubicación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ej in ejemplares %}
+                                        <tr>
+                                            <td class="font-monospace">{{ ej.codigo_barras }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if ej.estado == 'disponible' %}bg-success
+                                                    {% elif ej.estado == 'prestado' %}bg-primary
+                                                    {% elif ej.estado == 'en_reparacion' %}bg-warning text-dark
+                                                    {% else %}bg-secondary{% endif %}">
+                                                    {{ ej.estado|replace('_', ' ')|capitalize }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if ej.es_prestable %}
+                                                    <span class="badge bg-success"><i class="bi bi-arrow-left-right"></i> Prestable</span>
+                                                {% else %}
+                                                    <span class="badge bg-info"><i class="bi bi-eye"></i> Solo sala</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ ej.ubicacion|default('-') }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-layers fs-1"></i>
+                                <p>No hay ejemplares registrados.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Tab Reseñas -->
+                        <div class="tab-pane fade" id="resenas">
+                            {% if session.rol in ['estudiante', 'admin'] %}
+                            <div class="mb-3">
+                                <a href="{{ url_for('resenas.crear', libro_id=libro.id) }}" class="btn btn-warning btn-sm text-dark fw-bold">
+                                    <i class="bi bi-pencil"></i> Escribir Reseña
+                                </a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if resenas %}
+                                {% for r in resenas %}
+                                <div class="card mb-2 border-0 bg-light">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>{{ r.nombre_usuario }}</strong>
+                                                <span class="text-warning ms-2">
+                                                    {% for i in range(r.calificacion) %}<i class="bi bi-star-fill"></i>{% endfor %}
+                                                    {% for i in range(5 - r.calificacion) %}<i class="bi bi-star"></i>{% endfor %}
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">{{ r.fecha.strftime('%d/%m/%Y') }}</small>
+                                        </div>
+                                        <p class="mb-1 mt-2">{{ r.comentario }}</p>
+                                        {% if session.rol == 'admin' %}
+                                        <div class="text-end">
+                                            <a href="{{ url_for('resenas.moderar', id=r.id) }}" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i> Eliminar
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-chat-square-text fs-1"></i>
+                                    <p>Aún no hay reseñas para este libro. ¡Sé el primero!</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

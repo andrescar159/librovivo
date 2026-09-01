@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Pago de Multa - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-success">
+                    <i class="bi bi-cash-coin"></i> Registrar Pago de Multa
+                </h2>
+                <a href="{{ url_for('multas.lista') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Info de la multa -->
+            <div class="card shadow-sm border-0 mb-4 border-start border-4 border-danger">
+                <div class="card-header bg-danger text-white fw-bold">
+                    <i class="bi bi-exclamation-circle"></i> Multa #{{ multa.id }}
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm mb-0">
+                                <tr>
+                                    <td class="fw-bold text-secondary" style="width: 40%;">Estudiante:</td>
+                                    <td>{{ multa.nombre_estudiante }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Documento:</td>
+                                    <td>{{ multa.documento_estudiante|default('N/A') }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Préstamo #:</td>
+                                    <td class="font-monospace">{{ multa.prestamo_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Libro:</td>
+                                    <td>{{ multa.titulo_libro|default('No disponible') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm mb-0">
+                                <tr>
+                                    <td class="fw-bold text-secondary" style="width: 40%;">Días retraso:</td>
+                                    <td>
+                                        <span class="badge bg-danger">{{ multa.dias_retraso }} días</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Monto:</td>
+                                    <td class="fs-4 text-danger fw-bold">${{ "{:,.0f}".format(multa.monto) }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Estado:</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Generada:</td>
+                                    <td>{{ multa.fecha_generacion|default('N/A') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cálculo de la multa -->
+            <div class="alert alert-info mb-4">
+                <h6 class="fw-bold"><i class="bi bi-calculator"></i> Cálculo de la multa:</h6>
+                <p class="mb-1">Días de retraso: <strong>{{ multa.dias_retraso }}</strong> días</p>
+                <p class="mb-1">Tarifa: <strong>$500</strong> pesos por día</p>
+                <p class="mb-0">Total: <strong class="fs-5">${{ "{:,.0f}".format(multa.monto) }}</strong></p>
+                {% if multa.dias_retraso >= 10 %}
+                <hr class="my-2">
+                <p class="mb-0 small text-danger"><i class="bi bi-info-circle"></i> Se aplicó el tope máximo de <strong>$7.000</strong> (más de 10 días de retraso).</p>
+                {% endif %}
+            </div>
+
+            <!-- Formulario de pago -->
+            <form method="POST" action="{{ url_for('multas.procesar_pago', id=multa.id) }}">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-success text-white fw-bold">
+                        <i class="bi bi-clipboard-check"></i> Datos del Pago
+                    </div>
+                    <div class="card-body bg-light">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="monto_pagado" class="form-label fw-bold">Monto pagado <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control fw-bold" id="monto_pagado" 
+                                           name="monto_pagado" value="{{ multa.monto|int }}" min="0" step="100" required>
+                                </div>
+                                <div class="form-text">Ingrese el valor recibido en efectivo.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha_pago" class="form-label fw-bold">Fecha de pago <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="fecha_pago" 
+                                       name="fecha_pago" value="{{ fecha_actual }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label fw-bold">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="2" 
+                                      placeholder="Notas sobre el pago (opcional)..."></textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="condonar" name="condonar" value="1">
+                            <label class="form-check-label text-secondary" for="condonar">
+                                <i class="bi bi-heart"></i> Condonar multa (solo administradores)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advertencia -->
+                <div class="alert alert-warning small">
+                    <i class="bi bi-exclamation-triangle"></i> <strong>Importante:</strong> 
+                    Una vez registrado el pago, la multa quedará marcada como pagada y el estudiante podrá solicitar nuevos préstamos.
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('multas.lista') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success fw-bold btn-lg">
+                        <i class="bi bi-check-lg"></i> Confirmar Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

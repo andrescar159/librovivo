@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Préstamos - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="text-warning">
+                <i class="bi bi-journal-arrow-down"></i> Préstamos
+            </h2>
+            <p class="text-muted mb-0">Gestión de préstamos, devoluciones y renovaciones</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            {% if session.rol in ['admin', 'bibliotecario'] %}
+            <a href="{{ url_for('prestamos.nuevo_paso1') }}" class="btn btn-warning text-dark fw-bold">
+                <i class="bi bi-plus-lg"></i> Nuevo Préstamo
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="GET" action="{{ url_for('prestamos.lista') }}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-secondary">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="activo" {% if estado_filtro == 'activo' %}selected{% endif %}>Activos</option>
+                        <option value="devuelto" {% if estado_filtro == 'devuelto' %}selected{% endif %}>Devueltos</option>
+                        <option value="vencido" {% if estado_filtro == 'vencido' %}selected{% endif %}>Vencidos</option>
+                        <option value="perdido" {% if estado_filtro == 'perdido' %}selected{% endif %}>Perdidos</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary">Estudiante / Libro</label>
+                    <input type="text" name="q" class="form-control" placeholder="Nombre o título..." 
+                           value="{{ query|default('') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-secondary">Fecha</label>
+                    <input type="date" name="fecha" class="form-control" value="{{ fecha_filtro|default('') }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-warning text-dark w-100 fw-bold">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resumen rápido -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.activos|default(0) }}</h3>
+                    <small>Activos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.devueltos|default(0) }}</h3>
+                    <small>Devueltos hoy</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-danger text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.vencidos|default(0) }}</h3>
+                    <small>Vencidos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.vencen_manana|default(0) }}</h3>
+                    <small>Vencen mañana</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de préstamos -->
+    {% if prestamos %}
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-warning">
+                    <tr>
+                        <th>ID</th>
+                        <th>Estudiante</th>
+                        <th>Libro</th>
+                        <th>Código</th>
+                        <th>Préstamo</th>
+                        <th>Devolución</th>
+                        <th>Estado</th>
+                        <th>Renov.</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in prestamos %}
+                    <tr class="{% if p.estado == 'vencido' %}table-danger{% elif p.estado == 'activo' and p.dias_restantes <= 2 %}table-warning{% endif %}">
+                        <td class="font-monospace">#{{ p.id }}</td>
+                        <td>
+                            <strong>{{ p.nombre_estudiante }}</strong><br>
+                            <small class="text-muted">{{ p.documento_estudiante }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ p.titulo_libro }}</strong><br>
+                            <small class="text-muted">{{ p.autor_libro|default('') }}</small>
+                        </td>
+                        <td class="font-monospace small">{{ p.codigo_barras }}</td>
+                        <td>
+                            {{ p.fecha_prestamo.strftime('%d/%m/%Y') }}<br>
+                            <small class="text-muted">{{ p.fecha_prestamo.strftime('%H:%M') }}</small>
+                        </td>
+                        <td>
+                            {% if p.estado == 'activo' %}
+                                <strong>{{ p.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}</strong><br>
+                                {% if p.dias_restantes > 0 %}
+                                    <small class="text-success"><i class="bi bi-clock"></i> {{ p.dias_restantes }} días</small>
+                                {% elif p.dias_restantes == 0 %}
+                                    <small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Vence hoy</small>
+                                {% else %}
+                                    <small class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ p.dias_restantos|abs }} días vencido</small>
+                                {% endif %}
+                            {% else %}
+                                {{ p.fecha_devolucion_real.strftime('%d/%m/%Y') if p.fecha_devolucion_real else '-' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if p.estado == 'activo' %}bg-primary
+                                {% elif p.estado == 'devuelto' %}bg-success
+                                {% elif p.estado == 'vencido' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ p.estado|capitalize }}
+                            </span>
+                        </td>
+                        <td>{{ p.renovaciones_usadas }}/3</td>
+                        <td>
+                            {% if session.rol in ['admin', 'bibliotecario'] %}
+                                {% if p.estado == 'activo' %}
+                                <a href="{{ url_for('prestamos.devolver', id=p.id) }}" class="btn btn-sm btn-success mb-1" title="Devolver">
+                                    <i class="bi bi-check-lg"></i>
+                                </a>
+                                {% endif %}
+                                {% if p.estado == 'vencido' %}
+                                <a href="{{ url_for('multas.pagar', prestamo_id=p.id) }}" class="btn btn-sm btn-danger mb-1" title="Multa">
+                                    <i class="bi bi-cash-coin"></i>
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                            <a href="{{ url_for('prestamos.ver', id=p.id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Ver detalle">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Paginación -->
+    {% if total_paginas > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if pagina_actual > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('prestamos.lista', page=pagina_actual-1, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            {% for p in range(1, total_paginas + 1) %}
+            <li class="page-item {% if p == pagina_actual %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('prestamos.lista', page=p, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+            {% if pagina_actual < total_paginas %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('prestamos.lista', page=pagina_actual+1, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-journal-x text-muted" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No hay préstamos registrados</h4>
+        <p class="text-muted">Usa el botón "Nuevo Préstamo" para comenzar.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

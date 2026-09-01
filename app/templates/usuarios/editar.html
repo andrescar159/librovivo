@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Usuario - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-warning">
+                    <i class="bi bi-pencil-square"></i> Editar Usuario
+                </h2>
+                <a href="{{ url_for('usuarios.lista') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Card del formulario -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark">
+                    <i class="bi bi-person-gear"></i> Información de {{ usuario.nombre }} {{ usuario.apellido }}
+                </div>
+                <div class="card-body bg-light">
+                    <form method="POST" action="{{ url_for('usuarios.editar', id=usuario.id) }}" enctype="multipart/form-data">
+                        
+                        <div class="row">
+                            <!-- Columna izquierda: Datos personales -->
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" 
+                                           value="{{ usuario.nombre }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="apellido" class="form-label fw-bold">Apellido <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="apellido" name="apellido" 
+                                           value="{{ usuario.apellido }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-bold">Correo Electrónico <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ usuario.email }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="documento" class="form-label fw-bold">Documento de Identidad</label>
+                                    <input type="text" class="form-control" id="documento" name="documento" 
+                                           value="{{ usuario.documento or '' }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="telefono" class="form-label fw-bold">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefono" name="telefono" 
+                                           value="{{ usuario.telefono or '' }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="rol" class="form-label fw-bold">Rol <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="rol" name="rol" required>
+                                        <option value="estudiante" {% if usuario.rol == 'estudiante' %}selected{% endif %}>Estudiante</option>
+                                        <option value="bibliotecario" {% if usuario.rol == 'bibliotecario' %}selected{% endif %}>Bibliotecario</option>
+                                        <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Administrador</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="password" class="form-label fw-bold">Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="password" name="password" 
+                                           placeholder="Dejar en blanco para mantener la actual">
+                                    <div class="form-text text-muted">Mínimo 8 caracteres. Dejar vacío si no desea cambiarla.</div>
+                                </div>
+                            </div>
+
+                            <!-- Columna derecha: Foto y estado -->
+                            <div class="col-md-4 text-center">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Foto de Perfil</label>
+                                    <div class="mb-2">
+                                        {% if usuario.foto_perfil %}
+                                            <img src="{{ url_for('static', filename=usuario.foto_perfil) }}" 
+                                                 alt="Foto de perfil" class="img-thumbnail rounded-circle" 
+                                                 style="width: 150px; height: 150px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                                                 style="width: 150px; height: 150px; font-size: 60px;">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <input type="file" class="form-control form-control-sm" id="foto_perfil" 
+                                           name="foto_perfil" accept="image/*">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Estado</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="activo" 
+                                               name="activo" value="1" {% if usuario.activo %}checked{% endif %}>
+                                        <label class="form-check-label" for="activo">
+                                            {% if usuario.activo %}<span class="text-success">Activo</span>{% else %}<span class="text-danger">Inactivo</span>{% endif %}
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info small">
+                                    <i class="bi bi-info-circle"></i> Registrado el {{ usuario.fecha_registro.strftime('%d/%m/%Y') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('usuarios.ver', id=usuario.id) }}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i> Ver Detalle
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-outline-secondary me-2">
+                                    <i class="bi bi-x-circle"></i> Restablecer
+                                </button>
+                                <button type="submit" class="btn btn-warning text-dark fw-bold">
+                                    <i class="bi bi-check-lg"></i> Guardar Cambios
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

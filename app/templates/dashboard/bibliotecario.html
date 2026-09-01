@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Bibliotecario - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4" style="color: var(--naranja-principal);">
+        <i class="bi bi-speedometer2"></i> Panel del Bibliotecario
+    </h2>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card stat-card-naranja">
+                <div class="stat-number">{{ total_activos }}</div>
+                <div class="stat-label"><i class="bi bi-journal-check"></i> Prestamos Activos</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-verde">
+                <div class="stat-number">{{ devueltos_hoy }}</div>
+                <div class="stat-label"><i class="bi bi-check-circle"></i> Devueltos Hoy</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-amarillo">
+                <div class="stat-number">{{ vencen_proximos|length }}</div>
+                <div class="stat-label"><i class="bi bi-clock"></i> Vencen Pronto</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-rojo">
+                <div class="stat-number">{{ vencidos|length }}</div>
+                <div class="stat-label"><i class="bi bi-exclamation-triangle"></i> Vencidos</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Prestamos vencidos -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-rojo">
+                    <i class="bi bi-exclamation-triangle"></i> Prestamos Vencidos
+                </div>
+                <div class="card-body">
+                    {% if vencidos %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Libro</th>
+                                    <th>Dias</th>
+                                    <th>Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in vencidos %}
+                                <tr>
+                                    <td>{{ p.usuario_nombre }} {{ p.usuario_apellido }}</td>
+                                    <td>{{ p.libro_titulo }}</td>
+                                    <td><span class="badge bg-danger">{{ p.dias_vencido }} dias</span></td>
+                                    <td>
+                                        <a href="{{ url_for('prestamos.devolver', prestamo_id=p.id) }}" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-lg"></i> Devolver
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0"><i class="bi bi-check-circle"></i> No hay prestamos vencidos</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reservas activas -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-amarillo text-dark">
+                    <i class="bi bi-bookmark"></i> Reservas Activas
+                </div>
+                <div class="card-body">
+                    {% if reservas_activas %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Libro</th>
+                                    <th>Vence</th>
+                                    <th>Accion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in reservas_activas %}
+                                <tr>
+                                    <td>{{ r.usuario_nombre }} {{ r.usuario_apellido }}</td>
+                                    <td>{{ r.libro_titulo }}</td>
+                                    <td>{{ r.fecha_vencimiento.strftime('%d/%m') }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('reservas.completar', reserva_id=r.id) }}" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0"><i class="bi bi-check-circle"></i> No hay reservas activas</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Accesos rapidos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-librovivo">
+                    <i class="bi bi-lightning"></i> Accesos Rapidos del Dia
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="{{ url_for('prestamos.nuevo_paso1') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-journal-plus" style="font-size: 1.5rem;"></i><br>
+                                Nuevo Prestamo
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('prestamos.lista') }}?estado=activo" class="btn btn-verde w-100">
+                                <i class="bi bi-journal-check" style="font-size: 1.5rem;"></i><br>
+                                Registrar Devolucion
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('multas.lista') }}" class="btn btn-amarillo w-100 text-dark">
+                                <i class="bi bi-cash-coin" style="font-size: 1.5rem;"></i><br>
+                                Registrar Pago Multa
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="{{ url_for('libros.crear') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-book" style="font-size: 1.5rem;"></i><br>
+                                Registrar Libro Nuevo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Estudiante - LibroVivo{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registro-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #F4F1DE 0%, #fff 50%, #E8F5E9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    .registro-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 15px 50px rgba(255, 107, 53, 0.15);
+        overflow: hidden;
+        background: #fff;
+        max-width: 500px;
+        width: 100%;
+    }
+    .registro-header {
+        background: linear-gradient(135deg, #81B29A, #4CAF50);
+        color: #fff;
+        padding: 2rem;
+        text-align: center;
+    }
+    .registro-header i {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .registro-header h2 {
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    .registro-body {
+        padding: 2rem;
+    }
+    .form-control-registro {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control-registro:focus {
+        border-color: #81B29A;
+        box-shadow: 0 0 0 0.2rem rgba(129, 178, 154, 0.25);
+    }
+    .btn-registro {
+        background: linear-gradient(135deg, #81B29A, #4CAF50);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        padding: 0.85rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    .btn-registro:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(129, 178, 154, 0.35);
+        color: #fff;
+    }
+    .login-link-back {
+        color: #FF6B35;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .login-link-back:hover {
+        color: #E07A5F;
+        text-decoration: underline;
+    }
+    .reglas-box {
+        background: #FFF8F5;
+        border-left: 4px solid #FF6B35;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    .reglas-box h6 {
+        color: #FF6B35;
+        font-weight: 600;
+    }
+    .reglas-box ul {
+        margin-bottom: 0;
+        padding-left: 1.2rem;
+    }
+    .reglas-box li {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registro-page">
+    <div class="registro-card">
+        <!-- Header -->
+        <div class="registro-header">
+            <i class="bi bi-person-plus"></i>
+            <h2>LibroVivo</h2>
+            <p>Registro de Estudiante</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="registro-body">
+            <h4 class="text-center mb-4 text-secondary">Crear Cuenta</h4>
+            
+            <form method="POST" action="{{ url_for('auth.registro') }}">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-secondary">
+                            <i class="bi bi-person"></i> Nombre <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="nombre" class="form-control form-control-registro" 
+                               placeholder="Juan" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold text-secondary">
+                            <i class="bi bi-person"></i> Apellido <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="apellido" class="form-control form-control-registro" 
+                               placeholder="Perez" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">
+                        <i class="bi bi-envelope"></i> Correo Electronico <span class="text-danger">*</span>
+                    </label>
+                    <input type="email" name="email" class="form-control form-control-registro" 
+                           placeholder="juan.perez@colegio.edu" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">
+                        <i class="bi bi-credit-card"></i> Documento de Identidad
+                    </label>
+                    <input type="text" name="documento" class="form-control form-control-registro" 
+                           placeholder="1234567890">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">
+                        <i class="bi bi-telephone"></i> Telefono
+                    </label>
+                    <input type="tel" name="telefono" class="form-control form-control-registro" 
+                           placeholder="3001234567">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">
+                        <i class="bi bi-lock"></i> Contrasena <span class="text-danger">*</span>
+                    </label>
+                    <input type="password" name="password" class="form-control form-control-registro" 
+                           placeholder="Minimo 8 caracteres" required minlength="8">
+                    <div class="form-text text-muted">Minimo 8 caracteres. Usa letras y numeros.</div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">
+                        <i class="bi bi-lock-fill"></i> Confirmar Contrasena <span class="text-danger">*</span>
+                    </label>
+                    <input type="password" name="password_confirm" class="form-control form-control-registro" 
+                           placeholder="Repite tu contrasena" required minlength="8">
+                </div>
+                
+                <button type="submit" class="btn btn-registro">
+                    <i class="bi bi-check-lg"></i> Crear Cuenta
+                </button>
+            </form>
+            
+            <hr class="my-4">
+            
+            <div class="reglas-box">
+                <h6><i class="bi bi-info-circle"></i> Al registrarte aceptas:</h6>
+                <ul>
+                    <li>Maximo <strong>3 libros</strong> prestados simultaneamente</li>
+                    <li>Plazo de devolucion: <strong>15 dias</strong></li>
+                    <li>Multa por retraso: <strong>$500/dia</strong> (tope $7.000)</li>
+                    <li>El administrador debe <strong>activar tu cuenta</strong> antes de usar el sistema</li>
+                </ul>
+            </div>
+            
+            <div class="text-center mt-3">
+                <a href="{{ url_for('auth.login') }}" class="login-link-back">
+                    <i class="bi bi-arrow-left"></i> Ya tengo cuenta, ir al login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

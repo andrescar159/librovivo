@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Usuario - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-librovivo">
+                    <h4 class="mb-0"><i class="bi bi-person-plus"></i> Crear Nuevo Usuario</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('usuarios.crear') }}" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" name="nombre" class="form-control form-control-librovivo" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Apellido *</label>
+                                <input type="text" name="apellido" class="form-control form-control-librovivo" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Correo Electronico *</label>
+                                <input type="email" name="email" class="form-control form-control-librovivo" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Rol *</label>
+                                <select name="rol" class="form-select form-control-librovivo" required>
+                                    <option value="estudiante">Estudiante</option>
+                                    <option value="bibliotecario">Bibliotecario</option>
+                                    {% if session.rol == 'admin' %}
+                                    <option value="admin">Administrador</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Documento</label>
+                                <input type="text" name="documento" class="form-control form-control-librovivo" placeholder="Solo numeros">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Telefono</label>
+                                <input type="text" name="telefono" class="form-control form-control-librovivo">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Foto de Perfil</label>
+                            <input type="file" name="foto_perfil" class="form-control form-control-librovivo" accept="image/*">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-librovivo">
+                                <i class="bi bi-check-lg"></i> Crear Usuario
+                            </button>
+                            <a href="{{ url_for('usuarios.lista') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

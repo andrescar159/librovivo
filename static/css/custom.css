@@ -1,0 +1,392 @@
+/*
+ * LibroVivo - Estilos Personalizados
+ * Paleta de colores calidos
+ */
+
+/* ============================================
+   VARIABLES DE COLORES
+   ============================================ */
+:root {
+    --naranja-principal: #FF6B35;
+    --amarillo-dorado: #FFD23F;
+    --rojo-terracota: #E07A5F;
+    --crema: #F4F1DE;
+    --gris-oscuro: #3D405B;
+    --verde-exito: #81B29A;
+    --blanco: #FFFFFF;
+}
+
+/* ============================================
+   ESTILOS GENERALES
+   ============================================ */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: var(--gris-oscuro);
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.navbar-librovivo {
+    background: linear-gradient(135deg, var(--naranja-principal) 0%, var(--amarillo-dorado) 100%);
+    box-shadow: 0 2px 10px rgba(255, 107, 53, 0.3);
+}
+
+.navbar-librovivo .navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--blanco) !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.navbar-librovivo .nav-link {
+    color: rgba(255,255,255,0.9) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.navbar-librovivo .nav-link:hover {
+    color: var(--blanco) !important;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card-librovivo {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card-librovivo:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.15);
+}
+
+.card-header-librovivo {
+    background: linear-gradient(135deg, var(--naranja-principal), var(--rojo-terracota));
+    color: var(--blanco);
+    font-weight: 600;
+    border: none;
+    padding: 1.2rem;
+}
+
+.card-header-amarillo {
+    background: linear-gradient(135deg, var(--amarillo-dorado), #FFC107);
+    color: var(--gris-oscuro);
+}
+
+.card-header-verde {
+    background: linear-gradient(135deg, var(--verde-exito), #4CAF50);
+    color: var(--blanco);
+}
+
+.card-header-rojo {
+    background: linear-gradient(135deg, var(--rojo-terracota), #F44336);
+    color: var(--blanco);
+}
+
+/* ============================================
+   BOTONES
+   ============================================ */
+.btn-librovivo {
+    background: linear-gradient(135deg, var(--naranja-principal), var(--rojo-terracota));
+    border: none;
+    color: var(--blanco);
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-librovivo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    color: var(--blanco);
+}
+
+.btn-amarillo {
+    background: linear-gradient(135deg, var(--amarillo-dorado), #FFC107);
+    border: none;
+    color: var(--gris-oscuro);
+    font-weight: 600;
+}
+
+.btn-verde {
+    background: linear-gradient(135deg, var(--verde-exito), #4CAF50);
+    border: none;
+    color: var(--blanco);
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar-librovivo {
+    background: var(--gris-oscuro);
+    min-height: 100vh;
+    padding-top: 1rem;
+}
+
+.sidebar-librovivo .nav-link {
+    color: rgba(255,255,255,0.7);
+    padding: 0.8rem 1.5rem;
+    border-radius: 0 25px 25px 0;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-librovivo .nav-link:hover,
+.sidebar-librovivo .nav-link.active {
+    background: linear-gradient(90deg, var(--naranja-principal), transparent);
+    color: var(--blanco);
+}
+
+.sidebar-librovivo .nav-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* ============================================
+   STATS CARDS (Dashboard)
+   ============================================ */
+.stat-card {
+    border-radius: 15px;
+    padding: 1.5rem;
+    color: var(--blanco);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.stat-card-naranja {
+    background: linear-gradient(135deg, var(--naranja-principal), #FF8C42);
+}
+
+.stat-card-amarillo {
+    background: linear-gradient(135deg, var(--amarillo-dorado), #FFC107);
+    color: var(--gris-oscuro);
+}
+
+.stat-card-verde {
+    background: linear-gradient(135deg, var(--verde-exito), #4CAF50);
+}
+
+.stat-card-rojo {
+    background: linear-gradient(135deg, var(--rojo-terracota), #F44336);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
+.table-librovivo {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table-librovivo thead {
+    background: linear-gradient(135deg, var(--naranja-principal), var(--rojo-terracota));
+    color: var(--blanco);
+}
+
+.table-librovivo th {
+    font-weight: 600;
+    border: none;
+    padding: 1rem;
+}
+
+.table-librovivo td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table-librovivo tbody tr:hover {
+    background-color: rgba(255, 107, 53, 0.05);
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge-librovivo {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.badge-disponible {
+    background-color: var(--verde-exito);
+    color: var(--blanco);
+}
+
+.badge-prestado {
+    background-color: var(--naranja-principal);
+    color: var(--blanco);
+}
+
+.badge-vencido {
+    background-color: var(--rojo-terracota);
+    color: var(--blanco);
+}
+
+.badge-lectura-sala {
+    background-color: var(--amarillo-dorado);
+    color: var(--gris-oscuro);
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.alert-librovivo {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+}
+
+/* ============================================
+   FORMULARIOS
+   ============================================ */
+.form-control-librovivo {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control-librovivo:focus {
+    border-color: var(--naranja-principal);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+}
+
+/* ============================================
+   LOGIN
+   ============================================ */
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--crema) 0%, #fff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(255, 107, 53, 0.15);
+    overflow: hidden;
+}
+
+.login-header {
+    background: linear-gradient(135deg, var(--naranja-principal), var(--rojo-terracota));
+    color: var(--blanco);
+    padding: 2rem;
+    text-align: center;
+}
+
+.login-header h2 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.login-body {
+    padding: 2rem;
+}
+
+/* ============================================
+   PORTADAS DE LIBROS
+   ============================================ */
+.portada-libro {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.portada-libro:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.portada-libro-small {
+    width: 80px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* ============================================
+   ESTRELLAS DE CALIFICACION
+   ============================================ */
+.estrellas {
+    color: var(--amarillo-dorado);
+    font-size: 1.2rem;
+}
+
+.estrella-vacia {
+    color: #ddd;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.footer-librovivo {
+    background: var(--gris-oscuro);
+    color: rgba(255,255,255,0.7);
+    padding: 1.5rem 0;
+    margin-top: auto;
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .sidebar-librovivo {
+        min-height: auto;
+    }
+    
+    .portada-libro {
+        height: 200px;
+    }
+}

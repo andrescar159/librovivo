@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Panel - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Bienvenida -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card card-librovivo" style="background: linear-gradient(135deg, var(--crema), #fff);">
+                <div class="card-body">
+                    <h3 class="mb-0">
+                        <i class="bi bi-hand-wave" style="color: var(--naranja-principal);"></i>
+                        Hola, {{ session.nombre }}! Bienvenido a LibroVivo
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mis stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card stat-card-naranja">
+                <div class="stat-number">{{ mis_prestamos|length }}/3</div>
+                <div class="stat-label"><i class="bi bi-journal-check"></i> Mis Prestamos</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-amarillo">
+                <div class="stat-number">
+                    {% set proximos = mis_prestamos|selectattr('fecha_devolucion_prevista')|list %}
+                    {{ proximos|length }}
+                </div>
+                <div class="stat-label"><i class="bi bi-clock"></i> Devuelven Pronto</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card {% if mis_multas.total_pendiente > 0 %}stat-card-rojo{% else %}stat-card-verde{% endif %}">
+                <div class="stat-number">
+                    {% if mis_multas.total_pendiente > 0 %}
+                    ${{ "{:,.0f}".format(mis_multas.total_pendiente) }}
+                    {% else %}
+                    <i class="bi bi-check-lg"></i> $0
+                    {% endif %}
+                </div>
+                <div class="stat-label"><i class="bi bi-cash-coin"></i> Multas</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Mis prestamos activos -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-librovivo">
+                    <i class="bi bi-journal-check"></i> Mis Prestamos Activos
+                </div>
+                <div class="card-body">
+                    {% if mis_prestamos %}
+                        {% for p in mis_prestamos if p.estado == 'activo' %}
+                        <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: rgba(255,107,53,0.05);">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ p.libro_titulo }}</h6>
+                                <small class="text-muted">
+                                    Prestado: {{ p.fecha_prestamo.strftime('%d/%m/%Y') }} | 
+                                    Devuelve: <span class="{% if p.fecha_devolucion_prevista < now %}text-danger{% endif %}">
+                                        {{ p.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}
+                                    </span>
+                                </small>
+                            </div>
+                            {% if p.renovaciones_usadas < 3 %}
+                            <form method="POST" action="{{ url_for('prestamos.renovar', prestamo_id=p.id) }}" class="ms-2">
+                                <button type="submit" class="btn btn-sm btn-amarillo">
+                                    <i class="bi bi-arrow-repeat"></i> Renovar
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No tienes prestamos activos</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mis reservas -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-amarillo text-dark">
+                    <i class="bi bi-bookmark"></i> Mis Reservas Activas
+                </div>
+                <div class="card-body">
+                    {% if mis_reservas %}
+                        {% for r in mis_reservas if r.estado == 'activa' %}
+                        <div class="d-flex align-items-center mb-3 p-2 rounded" style="background: rgba(255,210,63,0.1);">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ r.libro_titulo }}</h6>
+                                <small class="text-muted">
+                                    Reservado: {{ r.fecha_reserva.strftime('%d/%m/%Y') }} | 
+                                    Vence: {{ r.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                                </small>
+                                {% if r.ejemplares_disponibles > 0 %}
+                                <span class="badge bg-success ms-2"><i class="bi bi-check-circle"></i> Disponible</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark ms-2"><i class="bi bi-clock"></i> Esperando</span>
+                                {% endif %}
+                            </div>
+                            <form method="POST" action="{{ url_for('reservas.cancelar', reserva_id=r.id) }}" class="ms-2">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No tienes reservas activas</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recomendaciones -->
+    {% if recomendaciones %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="bi bi-stars" style="color: var(--amarillo-dorado);"></i> Recomendaciones para Ti</h4>
+            <div class="row g-3">
+                {% for libro in recomendaciones %}
+                <div class="col-md-3">
+                    <div class="card card-librovivo h-100">
+                        {% if libro.portada_url %}
+                        <img src="{{ url_for('static', filename=libro.portada_url) }}" class="portada-libro" alt="{{ libro.titulo }}">
+                        {% else %}
+                        <div class="portada-libro d-flex align-items-center justify-content-center bg-light">
+                            <i class="bi bi-book" style="font-size: 3rem; color: var(--naranja-principal);"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title">{{ libro.titulo }}</h6>
+                            <p class="card-text"><small class="text-muted">{{ libro.categoria_nombre }}</small></p>
+                            <a href="{{ url_for('libros.ver', libro_id=libro.id) }}" class="btn btn-sm btn-librovivo">Ver</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Libros populares -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="bi bi-fire" style="color: var(--rojo-terracota);"></i> Libros Mas Populares</h4>
+            <div class="list-group">
+                {% for libro in populares %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-warning text-dark me-2">#{{ loop.index }}</span>
+                        {{ libro.titulo }}
+                    </div>
+                    <span class="badge bg-success">{{ libro.total_prestamos }} prestamos</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

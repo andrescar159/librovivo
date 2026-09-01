@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesion - LibroVivo{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos inline de respaldo por si custom.css no carga */
+    .login-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #F4F1DE 0%, #fff 50%, #FFE8D6 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    .login-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 15px 50px rgba(255, 107, 53, 0.2);
+        overflow: hidden;
+        background: #fff;
+        max-width: 420px;
+        width: 100%;
+    }
+    .login-header {
+        background: linear-gradient(135deg, #FF6B35, #E07A5F);
+        color: #fff;
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+    .login-header i {
+        font-size: 3.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .login-header h2 {
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        font-size: 1.8rem;
+    }
+    .login-header p {
+        margin-bottom: 0;
+        opacity: 0.95;
+        font-size: 0.95rem;
+    }
+    .login-body {
+        padding: 2rem 2rem 1.5rem;
+    }
+    .login-body h4 {
+        color: #3D405B;
+        font-weight: 600;
+    }
+    .form-control-login {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    .form-control-login:focus {
+        border-color: #FF6B35;
+        box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.2);
+    }
+    .btn-login {
+        background: linear-gradient(135deg, #FF6B35, #E07A5F);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        padding: 0.85rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+        color: #fff;
+    }
+    .login-link {
+        color: #FF6B35;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .login-link:hover {
+        color: #E07A5F;
+        text-decoration: underline;
+    }
+    .register-box {
+        background: #FFF8F5;
+        border: 1px dashed #FF6B35;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+        text-align: center;
+    }
+    .register-box p {
+        margin-bottom: 0.5rem;
+        color: #3D405B;
+    }
+    .btn-register {
+        background: #fff;
+        border: 2px solid #FF6B35;
+        color: #FF6B35;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+    .btn-register:hover {
+        background: #FF6B35;
+        color: #fff;
+    }
+    .horario-info {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-page">
+    <div class="login-card">
+        <!-- Header -->
+        <div class="login-header">
+            <i class="bi bi-book-half"></i>
+            <h2>LibroVivo</h2>
+            <p>Sistema de Gestion Bibliotecaria</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="login-body">
+            <h4 class="text-center mb-4">Iniciar Sesion</h4>
+            
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-secondary">
+                        <i class="bi bi-envelope"></i> Correo Electronico
+                    </label>
+                    <input type="email" name="email" class="form-control form-control-login" 
+                           placeholder="tu@correo.com" required autofocus>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">
+                        <i class="bi bi-lock"></i> Contrasena
+                    </label>
+                    <input type="password" name="password" class="form-control form-control-login" 
+                           placeholder="Tu contrasena" required>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="bi bi-box-arrow-in-right"></i> Ingresar
+                </button>
+            </form>
+            
+            <hr class="my-4">
+            
+            <!-- Recuperar password -->
+            <div class="text-center mb-3">
+                <a href="{{ url_for('auth.recuperar_password') }}" class="login-link">
+                    <i class="bi bi-key"></i> Olvidaste tu contrasena?
+                </a>
+            </div>
+            
+            <!-- Registro de estudiantes -->
+            <div class="register-box">
+                <p><i class="bi bi-person-plus"></i> Eres estudiante y no tienes cuenta?</p>
+                <a href="{{ url_for('auth.registro') }}" class="btn btn-register">
+                    <i class="bi bi-person-plus-fill"></i> Registrarme
+                </a>
+            </div>
+            
+            <!-- Horario -->
+            <div class="horario-info text-center">
+                <i class="bi bi-clock"></i> 
+                Horario de atencion: Lunes a Viernes 7:00 AM - 5:00 PM
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

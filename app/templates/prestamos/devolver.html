@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Devolver Préstamo - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-success">
+                    <i class="bi bi-journal-check"></i> Registrar Devolución
+                </h2>
+                <a href="{{ url_for('prestamos.lista') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Info del préstamo -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white fw-bold">
+                    <i class="bi bi-info-circle"></i> Información del Préstamo #{{ prestamo.id }}
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td class="fw-bold text-secondary">Estudiante:</td>
+                                    <td>{{ prestamo.nombre_estudiante }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Documento:</td>
+                                    <td>{{ prestamo.documento_estudiante }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Libro:</td>
+                                    <td>{{ prestamo.titulo_libro }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Código barras:</td>
+                                    <td class="font-monospace">{{ prestamo.codigo_barras }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td class="fw-bold text-secondary">Fecha préstamo:</td>
+                                    <td>{{ prestamo.fecha_prestamo.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Devolución prevista:</td>
+                                    <td>{{ prestamo.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Renovaciones:</td>
+                                    <td>{{ prestamo.renovaciones_usadas }}/3</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-secondary">Bibliotecario:</td>
+                                    <td>{{ prestamo.nombre_bibliotecario }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado de la devolución -->
+            {% if dias_retraso > 0 %}
+            <div class="alert alert-danger">
+                <h5 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> Préstamo Vencido</h5>
+                <p class="mb-1">El préstamo venció hace <strong>{{ dias_retraso }} día{{ 's' if dias_retraso > 1 else '' }}</strong>.</p>
+                <p class="mb-0">Multa calculada: <strong class="fs-4">${{ "{:,.0f}".format(monto_multa) }}</strong></p>
+                <hr>
+                <p class="mb-0 small">La multa se registrará automáticamente al confirmar la devolución.</p>
+            </div>
+            {% elif dias_retraso == 0 %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> <strong>¡Hoy vence el préstamo!</strong> Se entrega justo a tiempo.
+            </div>
+            {% else %}
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i> <strong>¡Excelente!</strong> El préstamo se entrega {{ dias_retraso|abs }} día{{ 's' if dias_retraso|abs > 1 else '' }} antes de la fecha límite.
+            </div>
+            {% endif %}
+
+            <!-- Formulario de devolución -->
+            <form method="POST" action="{{ url_for('prestamos.procesar_devolucion', id=prestamo.id) }}">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-light fw-bold text-secondary">
+                        <i class="bi bi-clipboard-check"></i> Datos de la Devolución
+                    </div>
+                    <div class="card-body bg-light">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha_devolucion_real" class="form-label fw-bold">Fecha y hora de devolución <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="fecha_devolucion_real" 
+                                       name="fecha_devolucion_real" value="{{ fecha_actual }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="estado_ejemplar" class="form-label fw-bold">Estado del ejemplar <span class="text-danger">*</span></label>
+                                <select class="form-select" id="estado_ejemplar" name="estado_ejemplar" required>
+                                    <option value="disponible">Buen estado - Disponible</option>
+                                    <option value="en_reparacion">Dañado - En reparación</option>
+                                    <option value="dado_de_baja">Perdido / Dado de baja</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label fw-bold">Observaciones de devolución</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="2" 
+                                      placeholder="Estado físico del libro, daños, notas..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('prestamos.lista') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success fw-bold btn-lg">
+                        <i class="bi bi-check-lg"></i> Confirmar Devolución
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

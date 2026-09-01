@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Préstamo - Paso 3 - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <h2 class="text-warning mb-1">
+                <i class="bi bi-journal-arrow-down"></i> Nuevo Préstamo
+            </h2>
+            <p class="text-muted">Paso 3 de 3: Confirmar Préstamo</p>
+
+            <!-- Indicador de pasos -->
+            <div class="progress mb-4" style="height: 30px;">
+                <div class="progress-bar bg-success text-white fw-bold" role="progressbar" style="width: 33%;">
+                    <i class="bi bi-check-lg"></i> 1. Estudiante
+                </div>
+                <div class="progress-bar bg-success text-white fw-bold" role="progressbar" style="width: 34%;">
+                    <i class="bi bi-check-lg"></i> 2. Libro
+                </div>
+                <div class="progress-bar bg-warning text-dark fw-bold" role="progressbar" style="width: 33%;">
+                    3. Confirmar
+                </div>
+            </div>
+
+            <!-- Resumen del préstamo -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="bi bi-clipboard-check"></i> Resumen del Préstamo
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row">
+                        <!-- Estudiante -->
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-secondary fw-bold"><i class="bi bi-person"></i> Estudiante</h6>
+                            <p class="mb-1"><strong>{{ estudiante.nombre }} {{ estudiante.apellido }}</strong></p>
+                            <p class="mb-1 small text-muted">{{ estudiante.documento }}</p>
+                            <p class="mb-0 small text-muted">{{ estudiante.email }}</p>
+                        </div>
+                        <!-- Libro -->
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-secondary fw-bold"><i class="bi bi-book"></i> Libro</h6>
+                            <p class="mb-1"><strong>{{ libro.titulo }}</strong></p>
+                            <p class="mb-1 small text-muted">{{ libro.autores|default('') }}</p>
+                            <p class="mb-0 small text-muted">ISBN: {{ libro.isbn|default('N/A') }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Ejemplar seleccionado -->
+                    <div class="mb-3">
+                        <h6 class="text-secondary fw-bold"><i class="bi bi-upc"></i> Ejemplar seleccionado</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Código de Barras</th>
+                                        <th>Ubicación</th>
+                                        <th>Tipo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="font-monospace fw-bold">{{ ejemplar.codigo_barras }}</td>
+                                        <td>{{ ejemplar.ubicacion|default('No especificada') }}</td>
+                                        <td>
+                                            <span class="badge bg-success"><i class="bi bi-check-lg"></i> Prestable</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Fechas -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="alert alert-primary">
+                                <strong><i class="bi bi-calendar-check"></i> Fecha de préstamo:</strong><br>
+                                {{ fecha_prestamo.strftime('%d/%m/%Y %H:%M') }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-warning">
+                                <strong><i class="bi bi-calendar-x"></i> Fecha de devolución:</strong><br>
+                                {{ fecha_devolucion.strftime('%d/%m/%Y') }}<br>
+                                <small class="text-muted">Plazo: 15 días hábiles</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reglas -->
+                    <div class="alert alert-info small">
+                        <h6 class="fw-bold"><i class="bi bi-info-circle"></i> Reglas del préstamo:</h6>
+                        <ul class="mb-0">
+                            <li>Máximo <strong>3 libros</strong> simultáneamente por estudiante.</li>
+                            <li>Plazo estándar: <strong>15 días</strong>.</li>
+                            <li>Multa por retraso: <strong>$500 pesos por día</strong> (máx. $7.000).</li>
+                            <li>Renovaciones permitidas: <strong>3 veces</strong> (si no hay reservas).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de confirmación -->
+            <form method="POST" action="{{ url_for('prestamos.guardar') }}">
+                <input type="hidden" name="estudiante_id" value="{{ estudiante.id }}">
+                <input type="hidden" name="ejemplar_id" value="{{ ejemplar.id }}">
+                <input type="hidden" name="fecha_devolucion_prevista" value="{{ fecha_devolucion.strftime('%Y-%m-%d') }}">
+
+                <div class="mb-3">
+                    <label for="observaciones" class="form-label fw-bold">Observaciones (opcional)</label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="2" 
+                              placeholder="Notas del bibliotecario sobre este préstamo..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('prestamos.nuevo_paso2', estudiante_id=estudiante.id) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver a seleccionar libro
+                    </a>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold btn-lg">
+                        <i class="bi bi-check-lg"></i> Confirmar y Registrar Préstamo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

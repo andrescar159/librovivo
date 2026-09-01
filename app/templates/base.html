@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LibroVivo{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Estilos personalizados (con ?v=2 para forzar recarga) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}?v=2">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Estilos de respaldo inline por si custom.css falla -->
+    <style>
+        .navbar-librovivo {
+            background: linear-gradient(135deg, #FF6B35 0%, #FFD23F 100%);
+            box-shadow: 0 2px 10px rgba(255,107,53,0.3);
+        }
+        .navbar-librovivo .navbar-brand {
+            font-weight: 700; font-size: 1.5rem; color: #fff !important;
+        }
+        .navbar-librovivo .nav-link {
+            color: rgba(255,255,255,0.9) !important; font-weight: 500;
+        }
+        .btn-librovivo {
+            background: linear-gradient(135deg, #FF6B35, #E07A5F);
+            border: none; color: #fff; font-weight: 600;
+            border-radius: 25px;
+        }
+        .btn-librovivo:hover {
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255,107,53,0.4);
+        }
+        .footer-librovivo {
+            background: #3D405B; color: rgba(255,255,255,0.7);
+            padding: 1.5rem 0;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    
+    <!-- Navbar -->
+    {% if usuario_rol %}
+    <nav class="navbar navbar-expand-lg navbar-librovivo sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
+                <i class="bi bi-book-half"></i> LibroVivo
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    
+                    <!-- Menu Admin -->
+                    {% if usuario_rol == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.index') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-people"></i> Usuarios
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('usuarios.lista') }}">Listar</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('usuarios.crear') }}">Crear</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-book"></i> Libros
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('libros.catalogo') }}">Catalogo</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('libros.crear') }}">Registrar</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-journal-check"></i> Prestamos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('prestamos.lista') }}">Activos</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('prestamos.nuevo_paso1') }}">Nuevo</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('multas.lista') }}">
+                            <i class="bi bi-cash-coin"></i> Multas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('reportes.index') }}">
+                            <i class="bi bi-file-earmark-pdf"></i> Reportes
+                        </a>
+                    </li>
+                    
+                    <!-- Menu Bibliotecario -->
+                    {% elif usuario_rol == 'bibliotecario' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.index') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('prestamos.nuevo_paso1') }}">
+                            <i class="bi bi-journal-plus"></i> Nuevo Prestamo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('prestamos.lista') }}">
+                            <i class="bi bi-journal-check"></i> Prestamos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('multas.lista') }}">
+                            <i class="bi bi-cash-coin"></i> Multas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('reservas.lista') }}">
+                            <i class="bi bi-bookmark"></i> Reservas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('libros.catalogo') }}">
+                            <i class="bi bi-book"></i> Catalogo
+                        </a>
+                    </li>
+                    
+                    <!-- Menu Estudiante -->
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.index') }}">
+                            <i class="bi bi-speedometer2"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('libros.catalogo') }}">
+                            <i class="bi bi-book"></i> Catalogo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('prestamos.mis_prestamos') }}">
+                            <i class="bi bi-journal-check"></i> Mis Prestamos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('reservas.mis_reservas') }}">
+                            <i class="bi bi-bookmark"></i> Mis Reservas
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <!-- Menu usuario -->
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ usuario_nombre }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            
+                            <li><a class="dropdown-item" href="{{ url_for('usuarios.ver', usuario_id=session.usuario_id) }}">
+                                <i class="bi bi-person"></i> Mi Perfil
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.cambiar_password') }}">
+                                <i class="bi bi-key"></i> Cambiar Contrasena
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesion
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <!-- Contenido principal -->
+    <main class="flex-grow-1">
+        <div class="container-fluid py-4">
+            
+            <!-- Mensajes flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                <i class="bi bi-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'x-circle' }}"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Bloque de contenido -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer-librovivo mt-auto">
+        <div class="container text-center">
+            <small>
+                <i class="bi bi-book-half"></i> LibroVivo v1.0.0 | 
+                Sistema de Gestion Bibliotecaria | 
+                &copy; 2026 Colegio
+            </small>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

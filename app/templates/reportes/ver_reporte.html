@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte Generado - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado del reporte -->
+    <div class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
+        <div class="card-body bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="text-warning mb-1">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Reporte Generado
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <strong>Tipo:</strong> {{ titulo_reporte }} | 
+                        <strong>Período:</strong> {{ fecha_inicio.strftime('%d/%m/%Y') }} - {{ fecha_fin.strftime('%d/%m/%Y') }}
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <p class="text-muted mb-1">Generado el {{ fecha_generacion.strftime('%d/%m/%Y %H:%M') }}</p>
+                    <p class="text-muted mb-0">Por: {{ nombre_generador }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen estadístico -->
+    <div class="row mb-4">
+        {% for stat in estadisticas %}
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm text-center 
+                {% if stat.color == 'primary' %}bg-primary text-white
+                {% elif stat.color == 'success' %}bg-success text-white
+                {% elif stat.color == 'warning' %}bg-warning text-dark
+                {% elif stat.color == 'danger' %}bg-danger text-white
+                {% else %}bg-secondary text-white{% endif %}">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stat.valor }}</h3>
+                    <small>{{ stat.etiqueta }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Tabla de resultados -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-table"></i> Resultados del Reporte ({{ datos|length }} registros)</span>
+            <a href="{{ url_for('reportes.descargar_pdf', tipo=tipo_reporte, fecha_inicio=fecha_inicio.strftime('%Y-%m-%d'), fecha_fin=fecha_fin.strftime('%Y-%m-%d')) }}" 
+               class="btn btn-danger btn-sm">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-warning">
+                    <tr>
+                        {% for columna in columnas %}
+                        <th>{{ columna }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fila in datos %}
+                    <tr>
+                        {% for valor in fila %}
+                        <td>{{ valor|default('-') }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if not datos %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No hay datos para este reporte</h4>
+        <p class="text-muted">Intenta ajustar los filtros o el rango de fechas.</p>
+        <a href="{{ url_for('reportes.filtros', tipo=tipo_reporte) }}" class="btn btn-warning text-dark fw-bold">
+            <i class="bi bi-funnel"></i> Cambiar Filtros
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Botones de acción -->
+    <div class="d-flex justify-content-between">
+        <a href="{{ url_for('reportes.filtros', tipo=tipo_reporte) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Nuevo Reporte
+        </a>
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-warning">
+            <i class="bi bi-house"></i> Ir al Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Pago Confirmado - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <!-- Icono de éxito -->
+            <div class="mb-4">
+                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                     style="width: 100px; height: 100px; font-size: 50px;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+            </div>
+
+            <h2 class="text-success mb-3">
+                {% if condonada %}
+                    <i class="bi bi-heart"></i> Multa Condonada
+                {% else %}
+                    <i class="bi bi-cash-coin"></i> ¡Pago Registrado!
+                {% endif %}
+            </h2>
+            <p class="text-muted mb-4">
+                {% if condonada %}
+                    La multa ha sido condonada exitosamente.
+                {% else %}
+                    El pago ha sido registrado correctamente.
+                {% endif %}
+            </p>
+
+            <!-- Detalles del pago -->
+            <div class="card shadow-sm border-0 mb-4 text-start">
+                <div class="card-header {% if condonada %}bg-secondary{% else %}bg-success{% endif %} text-white fw-bold">
+                    <i class="bi bi-receipt"></i> Detalles del {{ 'Condonación' if condonada else 'Pago' }}
+                </div>
+                <div class="card-body bg-light">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr>
+                            <td class="fw-bold text-secondary" style="width: 45%;">Multa #:</td>
+                            <td class="font-monospace">{{ multa.id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Estudiante:</td>
+                            <td>{{ multa.nombre_estudiante }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Préstamo #:</td>
+                            <td>{{ multa.prestamo_id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Días de retraso:</td>
+                            <td>{{ multa.dias_retraso }} días</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Monto original:</td>
+                            <td class="text-danger fw-bold">${{ "{:,.0f}".format(multa.monto) }}</td>
+                        </tr>
+                        {% if not condonada %}
+                        <tr>
+                            <td class="fw-bold text-secondary">Monto pagado:</td>
+                            <td class="text-success fw-bold">${{ "{:,.0f}".format(monto_pagado) }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Fecha de pago:</td>
+                            <td>{{ fecha_pago.strftime('%d/%m/%Y %H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td class="fw-bold text-secondary">Condonado por:</td>
+                            <td>{{ session.nombre }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="fw-bold text-secondary">Estado actual:</td>
+                            <td>
+                                <span class="badge {% if condonada %}bg-secondary{% else %}bg-success{% endif %}">
+                                    {{ 'Condonada' if condonada else 'Pagada' }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Mensaje importante -->
+            <div class="alert alert-success">
+                <i class="bi bi-info-circle"></i> <strong>El estudiante ya puede solicitar nuevos préstamos.</strong><br>
+                <small class="text-muted">El sistema ha actualizado el estado del usuario automáticamente.</small>
+            </div>
+
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('multas.lista') }}" class="btn btn-warning text-dark fw-bold btn-lg">
+                    <i class="bi bi-list"></i> Ver Lista de Multas
+                </a>
+                <a href="{{ url_for('prestamos.lista') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-journal-arrow-down"></i> Ir a Préstamos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

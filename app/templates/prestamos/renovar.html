@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Renovar Préstamo - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-warning">
+                    <i class="bi bi-arrow-repeat"></i> Solicitar Renovación
+                </h2>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Info del préstamo -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="bi bi-info-circle"></i> Información del Préstamo #{{ prestamo.id }}
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Libro:</strong> {{ prestamo.titulo_libro }}</p>
+                            <p class="mb-1"><strong>Autor:</strong> {{ prestamo.autor_libro|default('') }}</p>
+                            <p class="mb-1"><strong>Código:</strong> <span class="font-monospace">{{ prestamo.codigo_barras }}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Fecha préstamo:</strong> {{ prestamo.fecha_prestamo.strftime('%d/%m/%Y') }}</p>
+                            <p class="mb-1"><strong>Devolución actual:</strong> {{ prestamo.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}</p>
+                            <p class="mb-1"><strong>Renovaciones usadas:</strong> {{ prestamo.renovaciones_usadas }}/3</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validaciones -->
+            {% if prestamo.renovaciones_usadas >= 3 %}
+            <div class="alert alert-danger">
+                <h5 class="alert-heading"><i class="bi bi-x-octagon"></i> No se puede renovar</h5>
+                <p>Has alcanzado el límite máximo de <strong>3 renovaciones</strong> para este préstamo.</p>
+                <hr>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">Volver al inicio</a>
+            </div>
+            {% elif tiene_reservas %}
+            <div class="alert alert-warning">
+                <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> No disponible para renovación</h5>
+                <p>Este libro tiene <strong>reservas pendientes</strong> de otros estudiantes. No puede renovarse hasta que las reservas sean atendidas.</p>
+                <hr>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">Volver al inicio</a>
+            </div>
+            {% elif dias_retraso > 0 %}
+            <div class="alert alert-danger">
+                <h5 class="alert-heading"><i class="bi bi-x-octagon"></i> Préstamo vencido</h5>
+                <p>El préstamo está vencido hace <strong>{{ dias_retraso }} días</strong>. Debes devolver el libro y pagar la multa correspondiente.</p>
+                <hr>
+                <a href="{{ url_for('prestamos.lista') }}" class="btn btn-danger">Ver préstamos</a>
+            </div>
+            {% else %}
+            <!-- Puede renovar -->
+            <div class="alert alert-success">
+                <h5 class="alert-heading"><i class="bi bi-check-circle"></i> Renovación disponible</h5>
+                <p>Tienes <strong>{{ 3 - prestamo.renovaciones_usadas }} renovación{{ 'es' if (3 - prestamo.renovaciones_usadas) > 1 else '' }}</strong> restante{{ 's' if (3 - prestamo.renovaciones_usadas) > 1 else '' }}.</p>
+                <p class="mb-0">La nueva fecha de devolución será: <strong>{{ nueva_fecha_devolucion.strftime('%d/%m/%Y') }}</strong> (15 días más).</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('prestamos.confirmar_renovacion', id=prestamo.id) }}">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body bg-light">
+                        <div class="mb-3">
+                            <label for="motivo" class="form-label fw-bold">Motivo de la renovación (opcional)</label>
+                            <textarea class="form-control" id="motivo" name="motivo" rows="2" 
+                                      placeholder="¿Por qué necesitas renovar el préstamo?"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold btn-lg">
+                        <i class="bi bi-arrow-repeat"></i> Confirmar Renovación
+                    </button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

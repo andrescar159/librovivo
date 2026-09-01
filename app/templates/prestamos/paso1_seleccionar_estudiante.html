@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Préstamo - Paso 1 - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <h2 class="text-warning mb-1">
+                <i class="bi bi-journal-arrow-down"></i> Nuevo Préstamo
+            </h2>
+            <p class="text-muted">Paso 1 de 3: Seleccionar Estudiante</p>
+
+            <!-- Indicador de pasos -->
+            <div class="progress mb-4" style="height: 30px;">
+                <div class="progress-bar bg-warning text-dark fw-bold" role="progressbar" style="width: 33%;">
+                    1. Estudiante
+                </div>
+                <div class="progress-bar bg-light text-muted" role="progressbar" style="width: 34%;">
+                    2. Libro
+                </div>
+                <div class="progress-bar bg-light text-muted" role="progressbar" style="width: 33%;">
+                    3. Confirmar
+                </div>
+            </div>
+
+            <!-- Búsqueda de estudiante -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="bi bi-search"></i> Buscar Estudiante
+                </div>
+                <div class="card-body bg-light">
+                    <form method="GET" action="{{ url_for('prestamos.nuevo_paso1') }}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="q" 
+                                   placeholder="Nombre, apellido, documento o email..." 
+                                   value="{{ query|default('') }}">
+                            <button class="btn btn-warning text-dark fw-bold" type="submit">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            {% if estudiantes %}
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light fw-bold text-secondary">
+                    <i class="bi bi-people"></i> Estudiantes encontrados ({{ estudiantes|length }})
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for e in estudiantes %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                {% if e.foto_perfil %}
+                                <img src="{{ url_for('static', filename=e.foto_perfil) }}" 
+                                     class="rounded-circle me-3" alt="" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width: 50px; height: 50px; font-size: 20px;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1">{{ e.nombre }} {{ e.apellido }}</h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-credit-card"></i> {{ e.documento|default('N/A') }} | 
+                                        <i class="bi bi-envelope"></i> {{ e.email }}
+                                    </small>
+                                    <div class="mt-1">
+                                        <span class="badge bg-primary"><i class="bi bi-book"></i> {{ e.prestamos_activos|default(0) }}/3 préstamos</span>
+                                        {% if e.multas_pendientes > 0 %}
+                                        <span class="badge bg-danger"><i class="bi bi-cash-coin"></i> ${{ "{:,.0f}".format(e.multas_pendientes) }} multas</span>
+                                        {% else %}
+                                        <span class="badge bg-success"><i class="bi bi-check-lg"></i> Sin multas</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                {% if e.prestamos_activos < 3 and e.multas_pendientes == 0 %}
+                                <a href="{{ url_for('prestamos.nuevo_paso2', estudiante_id=e.id) }}" 
+                                   class="btn btn-warning text-dark fw-bold">
+                                    <i class="bi bi-arrow-right-circle"></i> Seleccionar
+                                </a>
+                                {% elif e.multas_pendientes > 0 %}
+                                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Tiene multas</span>
+                                {% else %}
+                                <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Límite alcanzado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% elif query %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> No se encontraron estudiantes con "<strong>{{ query }}</strong>".
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-search fs-1"></i>
+                <p>Escribe un nombre, documento o email para buscar el estudiante.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

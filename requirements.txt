@@ -1,0 +1,23 @@
+# LibroVivo - Dependencias del proyecto
+# Instalar con: pip install -r requirements.txt
+
+# Framework web
+Flask==3.0.0
+
+# Conexion MySQL
+mysql-connector-python==8.2.0
+
+# Seguridad (hash de contrasenas)
+bcrypt==4.1.2
+
+# Variables de entorno
+python-dotenv==1.0.0
+
+# Generacion de PDFs
+reportlab==4.0.7
+
+# Utilidades Werkzeug (viene con Flask)
+Werkzeug==3.0.1
+
+# Email
+# (smtplib es parte de la libreria estandar de Python)

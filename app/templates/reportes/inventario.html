@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Inventario - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-warning mb-1">
+                <i class="bi bi-box-seam"></i> Reporte de Inventario
+            </h2>
+            <p class="text-muted mb-0">Estado actual de libros y ejemplares</p>
+        </div>
+        <div class="text-end">
+            <a href="{{ url_for('reportes.filtros', tipo='inventario') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-funnel"></i> Cambiar Filtros
+            </a>
+            <a href="{{ url_for('reportes.descargar_pdf', tipo='inventario') }}" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas del inventario -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.total_libros|default(0) }}</h3>
+                    <small>Títulos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.total_ejemplares|default(0) }}</h3>
+                    <small>Ejemplares</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-info text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.disponibles|default(0) }}</h3>
+                    <small>Disponibles</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ stats.prestados|default(0) }}</h3>
+                    <small>Prestados</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribución por categoría Dewey -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-light fw-bold text-secondary">
+            <i class="bi bi-pie-chart"></i> Distribución por Categoría Dewey
+        </div>
+        <div class="card-body bg-light">
+            <div class="row">
+                {% for cat in distribucion_categorias %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold">{{ cat.codigo }} - {{ cat.nombre }}</span>
+                        <span class="badge bg-warning text-dark">{{ cat.cantidad }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-warning text-dark" role="progressbar" 
+                             style="width: {{ cat.porcentaje }}%;">
+                            {{ cat.porcentaje }}%
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de inventario detallado -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-warning text-dark fw-bold">
+            <i class="bi bi-table"></i> Detalle del Inventario
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-warning">
+                    <tr>
+                        <th>ID</th>
+                        <th>Libro</th>
+                        <th>ISBN</th>
+                        <th>Categoría</th>
+                        <th>Ejemplares</th>
+                        <th>Disponibles</th>
+                        <th>Prestados</th>
+                        <th>Sala</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for libro in inventario %}
+                    <tr>
+                        <td class="font-monospace">{{ libro.id }}</td>
+                        <td>
+                            <strong>{{ libro.titulo }}</strong><br>
+                            <small class="text-muted">{{ libro.autores|default('') }}</small>
+                        </td>
+                        <td class="font-monospace small">{{ libro.isbn|default('N/A') }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ libro.codigo_dewey }}</span><br>
+                            <small class="text-muted">{{ libro.categoria_nombre }}</small>
+                        </td>
+                        <td class="text-center fw-bold">{{ libro.total_ejemplares }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-success">{{ libro.disponibles }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-primary">{{ libro.prestados }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-info">{{ libro.solo_sala|default(0) }}</span>
+                        </td>
+                        <td>
+                            {% if libro.disponibles > 0 %}
+                                <span class="badge bg-success"><i class="bi bi-check-lg"></i> Disponible</span>
+                            {% elif libro.prestados > 0 %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> Prestado</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No disponible</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if not inventario %}
+    <div class="text-center py-5">
+        <i class="bi bi-box text-muted" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No hay libros registrados</h4>
+        <p class="text-muted">El inventario está vacío.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

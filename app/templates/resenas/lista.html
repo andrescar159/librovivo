@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Reseñas - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="text-warning">
+                <i class="bi bi-star-fill"></i> Reseñas de Libros
+            </h2>
+            <p class="text-muted mb-0">Opiniones y calificaciones de la comunidad</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            {% if session.rol in ['estudiante', 'admin'] %}
+            <a href="{{ url_for('libros.catalogo') }}" class="btn btn-warning text-dark fw-bold">
+                <i class="bi bi-pencil"></i> Escribir Reseña
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="GET" action="{{ url_for('resenas.lista') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary">Libro</label>
+                    <input type="text" name="libro" class="form-control" placeholder="Título del libro..." 
+                           value="{{ filtro_libro|default('') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-secondary">Calificación</label>
+                    <select name="calificacion" class="form-select">
+                        <option value="">Todas</option>
+                        <option value="5" {% if filtro_calificacion == '5' %}selected{% endif %}>5 estrellas</option>
+                        <option value="4" {% if filtro_calificacion == '4' %}selected{% endif %}>4 estrellas</option>
+                        <option value="3" {% if filtro_calificacion == '3' %}selected{% endif %}>3 estrellas</option>
+                        <option value="2" {% if filtro_calificacion == '2' %}selected{% endif %}>2 estrellas</option>
+                        <option value="1" {% if filtro_calificacion == '1' %}selected{% endif %}>1 estrella</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-secondary">Ordenar</label>
+                    <select name="orden" class="form-select">
+                        <option value="reciente" {% if filtro_orden == 'reciente' %}selected{% endif %}>Más recientes</option>
+                        <option value="antiguo" {% if filtro_orden == 'antiguo' %}selected{% endif %}>Más antiguas</option>
+                        <option value="mejor" {% if filtro_orden == 'mejor' %}selected{% endif %}>Mejor calificadas</option>
+                        <option value="peor" {% if filtro_orden == 'peor' %}selected{% endif %}>Peor calificadas</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-warning text-dark w-100 fw-bold">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.total_resenas|default(0) }}</h3>
+                    <small>Total Reseñas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.promedio|default(0) }}</h3>
+                    <small>Calificación Promedio</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.cinco_estrellas|default(0) }}</h3>
+                    <small>5 Estrellas</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-secondary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.mi_resenas|default(0) }}</h3>
+                    <small>Mis Reseñas</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de reseñas -->
+    {% if resenas %}
+    <div class="row row-cols-1 g-4">
+        {% for r in resenas %}
+        <div class="col">
+            <div class="card shadow-sm border-0 {% if not r.activo %}border-start border-4 border-danger opacity-75{% endif %}">
+                <div class="card-body bg-light">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex">
+                            <!-- Foto del usuario -->
+                            {% if r.foto_perfil %}
+                            <img src="{{ url_for('static', filename=r.foto_perfil) }}" 
+                                 class="rounded-circle me-3" alt="" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                 style="width: 50px; height: 50px; font-size: 20px;">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div>
+                                <h6 class="mb-1">
+                                    {{ r.nombre_usuario }}
+                                    {% if r.rol_usuario == 'admin' %}
+                                        <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">ADMIN</span>
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> {{ r.fecha.strftime('%d/%m/%Y') }}
+                                </small>
+                                <div class="mt-1">
+                                    {% for i in range(r.calificacion) %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% endfor %}
+                                    {% for i in range(5 - r.calificacion) %}
+                                        <i class="bi bi-star text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Info del libro -->
+                        <div class="text-end">
+                            <a href="{{ url_for('libros.ver', id=r.libro_id) }}" class="text-decoration-none">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2 text-end">
+                                        <small class="text-muted d-block">Sobre:</small>
+                                        <strong class="text-dark">{{ r.titulo_libro[:30] }}{% if r.titulo_libro|length > 30 %}...{% endif %}</strong>
+                                    </div>
+                                    {% if r.portada_libro %}
+                                    <img src="{{ url_for('static', filename=r.portada_libro) }}" 
+                                         class="rounded" alt="" style="width: 40px; height: 55px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
+                                         style="width: 40px; height: 55px;">
+                                        <i class="bi bi-book small"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- Comentario -->
+                    <p class="mb-2 {% if not r.activo %}text-decoration-line-through text-muted{% endif %}">
+                        {{ r.comentario }}
+                    </p>
+
+                    {% if not r.activo %}
+                    <span class="badge bg-danger"><i class="bi bi-trash"></i> Eliminada por moderador</span>
+                    {% endif %}
+
+                    <!-- Acciones -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            {% if session.usuario_id == r.usuario_id and r.activo %}
+                            <a href="{{ url_for('resenas.editar', id=r.id) }}" class="btn btn-sm btn-outline-warning me-1">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <a href="{{ url_for('resenas.eliminar', id=r.id) }}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if session.rol == 'admin' and r.activo %}
+                            <a href="{{ url_for('resenas.moderar', id=r.id) }}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-shield-exclamation"></i> Moderar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if total_paginas > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if pagina_actual > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('resenas.lista', page=pagina_actual-1, libro=filtro_libro, calificacion=filtro_calificacion, orden=filtro_orden) }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            {% for p in range(1, total_paginas + 1) %}
+            <li class="page-item {% if p == pagina_actual %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('resenas.lista', page=p, libro=filtro_libro, calificacion=filtro_calificacion, orden=filtro_orden) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+            {% if pagina_actual < total_paginas %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('resenas.lista', page=pagina_actual+1, libro=filtro_libro, calificacion=filtro_calificacion, orden=filtro_orden) }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-star text-muted" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No hay reseñas registradas</h4>
+        <p class="text-muted">Sé el primero en compartir tu opinión sobre un libro.</p>
+        <a href="{{ url_for('libros.catalogo') }}" class="btn btn-warning text-dark fw-bold btn-lg">
+            <i class="bi bi-collection"></i> Explorar Catálogo
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

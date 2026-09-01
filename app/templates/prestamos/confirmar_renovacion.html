@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Renovación Confirmada - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <!-- Icono de éxito -->
+            <div class="mb-4">
+                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                     style="width: 100px; height: 100px; font-size: 50px;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+            </div>
+
+            <h2 class="text-success mb-3">¡Renovación Exitosa!</h2>
+            <p class="text-muted mb-4">El préstamo ha sido renovado correctamente.</p>
+
+            <!-- Detalles -->
+            <div class="card shadow-sm border-0 mb-4 text-start">
+                <div class="card-header bg-success text-white fw-bold">
+                    <i class="bi bi-journal-check"></i> Detalles de la Renovación
+                </div>
+                <div class="card-body bg-light">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr>
+                            <td class="fw-bold text-secondary" style="width: 45%;">Préstamo #:</td>
+                            <td>{{ prestamo.id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Libro:</td>
+                            <td>{{ prestamo.titulo_libro }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Fecha anterior:</td>
+                            <td>{{ fecha_anterior.strftime('%d/%m/%Y') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Nueva fecha:</td>
+                            <td class="text-success fw-bold">{{ nueva_fecha.strftime('%d/%m/%Y') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Renovaciones usadas:</td>
+                            <td>{{ renovaciones_usadas }}/3</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold text-secondary">Renovaciones restantes:</td>
+                            <td>{{ 3 - renovaciones_usadas }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-warning text-dark fw-bold btn-lg">
+                    <i class="bi bi-house"></i> Ir al Dashboard
+                </a>
+                <a href="{{ url_for('prestamos.lista') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-list"></i> Ver Mis Préstamos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

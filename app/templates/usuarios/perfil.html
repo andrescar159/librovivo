@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Perfil - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <!-- Encabezado -->
+            <div class="text-center mb-4">
+                <h2 class="text-warning">
+                    <i class="bi bi-person-circle"></i> Mi Perfil
+                </h2>
+                <p class="text-muted">Gestiona tu información personal y seguridad</p>
+            </div>
+
+            <div class="row">
+                <!-- Columna izquierda: Foto y datos básicos -->
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm border-0 text-center">
+                        <div class="card-body bg-light">
+                            <form method="POST" action="{{ url_for('usuarios.actualizar_foto') }}" 
+                                  enctype="multipart/form-data" id="formFoto">
+                                <div class="position-relative d-inline-block mb-3">
+                                    {% if usuario.foto_perfil %}
+                                        <img src="{{ url_for('static', filename=usuario.foto_perfil) }}" 
+                                             class="rounded-circle" alt="Foto de perfil"
+                                             style="width: 200px; height: 200px; object-fit: cover; border: 4px solid #FF6B35;">
+                                    {% else %}
+                                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                                             style="width: 200px; height: 200px; font-size: 90px; border: 4px solid #FF6B35;">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                    {% endif %}
+                                    <label for="foto_perfil" class="position-absolute bottom-0 end-0 btn btn-warning btn-sm rounded-circle" 
+                                           style="width: 40px; height: 40px; cursor: pointer;" title="Cambiar foto">
+                                        <i class="bi bi-camera"></i>
+                                    </label>
+                                    <input type="file" id="foto_perfil" name="foto_perfil" 
+                                           accept="image/*" class="d-none" onchange="document.getElementById('formFoto').submit();">
+                                </div>
+                            </form>
+
+                            <h4>{{ usuario.nombre }} {{ usuario.apellido }}</h4>
+                            <span class="badge 
+                                {% if usuario.rol == 'admin' %}bg-danger
+                                {% elif usuario.rol == 'bibliotecario' %}bg-info
+                                {% else %}bg-success{% endif %} mb-2">
+                                {{ usuario.rol|capitalize }}
+                            </span>
+                            <p class="text-muted mb-0"><i class="bi bi-envelope"></i> {{ usuario.email }}</p>
+                            <p class="text-muted"><i class="bi bi-calendar"></i> Miembro desde {{ usuario.fecha_registro.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas personales -->
+                    <div class="card shadow-sm border-0 mt-3">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-book text-primary"></i> Préstamos activos</span>
+                                <span class="badge bg-primary rounded-pill">{{ stats.prestamos_activos|default(0) }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-bookmark text-warning"></i> Reservas activas</span>
+                                <span class="badge bg-warning text-dark rounded-pill">{{ stats.reservas_activas|default(0) }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-cash-coin text-danger"></i> Multas pendientes</span>
+                                <span class="badge bg-danger rounded-pill">${{ stats.multas_pendientes|default(0) }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-star text-warning"></i> Mis reseñas</span>
+                                <span class="badge bg-secondary rounded-pill">{{ stats.total_resenas|default(0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: Formularios -->
+                <div class="col-md-8">
+                    <!-- Editar datos personales -->
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <i class="bi bi-person-lines-fill"></i> Información Personal
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('usuarios.actualizar_perfil') }}">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="nombre" class="form-label fw-bold">Nombre</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" 
+                                               value="{{ usuario.nombre }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="apellido" class="form-label fw-bold">Apellido</label>
+                                        <input type="text" class="form-control" id="apellido" name="apellido" 
+                                               value="{{ usuario.apellido }}" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-bold">Correo Electrónico</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ usuario.email }}" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="documento" class="form-label fw-bold">Documento</label>
+                                        <input type="text" class="form-control" id="documento" name="documento" 
+                                               value="{{ usuario.documento or '' }}">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="telefono" class="form-label fw-bold">Teléfono</label>
+                                        <input type="tel" class="form-control" id="telefono" name="telefono" 
+                                               value="{{ usuario.telefono or '' }}">
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-warning text-dark fw-bold">
+                                        <i class="bi bi-check-lg"></i> Guardar Cambios
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Cambiar contraseña -->
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-danger text-white">
+                            <i class="bi bi-shield-lock"></i> Seguridad - Cambiar Contraseña
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('usuarios.cambiar_password') }}">
+                                <div class="mb-3">
+                                    <label for="password_actual" class="form-label fw-bold">Contraseña Actual <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="password_actual" 
+                                           name="password_actual" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password_nueva" class="form-label fw-bold">Nueva Contraseña <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="password_nueva" 
+                                           name="password_nueva" required minlength="8">
+                                    <div class="form-text">Mínimo 8 caracteres.</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password_confirmar" class="form-label fw-bold">Confirmar Nueva Contraseña <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="password_confirmar" 
+                                           name="password_confirmar" required minlength="8">
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-key"></i> Actualizar Contraseña
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

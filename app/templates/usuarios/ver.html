@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Usuario - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-warning">
+            <i class="bi bi-person-vcard"></i> Detalle del Usuario
+        </h2>
+        <div>
+            <a href="{{ url_for('usuarios.lista') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+            <a href="{{ url_for('usuarios.editar', id=usuario.id) }}" class="btn btn-warning text-dark">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Columna izquierda: Información personal -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center bg-light">
+                    {% if usuario.foto_perfil %}
+                        <img src="{{ url_for('static', filename=usuario.foto_perfil) }}" 
+                             class="rounded-circle mb-3" alt="Foto de perfil"
+                             style="width: 180px; height: 180px; object-fit: cover; border: 4px solid #FF6B35;">
+                    {% else %}
+                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                             style="width: 180px; height: 180px; font-size: 80px; border: 4px solid #FF6B35;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h4 class="mb-1">{{ usuario.nombre }} {{ usuario.apellido }}</h4>
+                    <span class="badge 
+                        {% if usuario.rol == 'admin' %}bg-danger
+                        {% elif usuario.rol == 'bibliotecario' %}bg-info
+                        {% else %}bg-success{% endif %} mb-2">
+                        {{ usuario.rol|capitalize }}
+                    </span>
+                    
+                    <div class="mt-3">
+                        {% if usuario.activo %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Activo</span>
+                        {% else %}
+                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Inactivo</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <i class="bi bi-envelope text-warning"></i> <strong>Email:</strong> {{ usuario.email }}
+                    </li>
+                    <li class="list-group-item">
+                        <i class="bi bi-credit-card text-warning"></i> <strong>Documento:</strong> {{ usuario.documento or 'No registrado' }}
+                    </li>
+                    <li class="list-group-item">
+                        <i class="bi bi-telephone text-warning"></i> <strong>Teléfono:</strong> {{ usuario.telefono or 'No registrado' }}
+                    </li>
+                    <li class="list-group-item">
+                        <i class="bi bi-calendar text-warning"></i> <strong>Registro:</strong> {{ usuario.fecha_registro.strftime('%d/%m/%Y %H:%M') }}
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Resumen rápido -->
+            <div class="card shadow-sm border-0 mt-3">
+                <div class="card-header bg-warning text-dark">
+                    <i class="bi bi-clipboard-data"></i> Resumen
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h5 class="text-primary mb-0">{{ resumen.prestamos_activos|default(0) }}</h5>
+                            <small class="text-muted">Préstamos</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="text-warning mb-0">{{ resumen.reservas_activas|default(0) }}</h5>
+                            <small class="text-muted">Reservas</small>
+                        </div>
+                        <div class="col-4">
+                            <h5 class="text-danger mb-0">${{ resumen.multas_pendientes|default(0) }}</h5>
+                            <small class="text-muted">Multas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna derecha: Tabs con información detallada -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light p-0">
+                    <ul class="nav nav-tabs card-header-tabs" id="usuarioTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active text-warning fw-bold" id="prestamos-tab" 
+                                    data-bs-toggle="tab" data-bs-target="#prestamos" type="button" role="tab">
+                                <i class="bi bi-book"></i> Préstamos
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-warning fw-bold" id="reservas-tab" 
+                                    data-bs-toggle="tab" data-bs-target="#reservas" type="button" role="tab">
+                                <i class="bi bi-bookmark"></i> Reservas
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-warning fw-bold" id="multas-tab" 
+                                    data-bs-toggle="tab" data-bs-target="#multas" type="button" role="tab">
+                                <i class="bi bi-cash-coin"></i> Multas
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-warning fw-bold" id="resenas-tab" 
+                                    data-bs-toggle="tab" data-bs-target="#resenas" type="button" role="tab">
+                                <i class="bi bi-star"></i> Reseñas
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="usuarioTabsContent">
+                        
+                        <!-- Tab Préstamos -->
+                        <div class="tab-pane fade show active" id="prestamos" role="tabpanel">
+                            {% if prestamos %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm">
+                                        <thead class="table-warning">
+                                            <tr>
+                                                <th>Libro</th>
+                                                <th>Fecha Préstamo</th>
+                                                <th>Devolución</th>
+                                                <th>Estado</th>
+                                                <th>Renov.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for p in prestamos %}
+                                            <tr>
+                                                <td>{{ p.titulo_libro }}</td>
+                                                <td>{{ p.fecha_prestamo.strftime('%d/%m/%Y') }}</td>
+                                                <td>{{ p.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}</td>
+                                                <td>
+                                                    <span class="badge 
+                                                        {% if p.estado == 'activo' %}bg-primary
+                                                        {% elif p.estado == 'devuelto' %}bg-success
+                                                        {% elif p.estado == 'vencido' %}bg-danger
+                                                        {% else %}bg-secondary{% endif %}">
+                                                        {{ p.estado|capitalize }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ p.renovaciones_usadas }}/3</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1"></i>
+                                    <p>No hay préstamos registrados.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Tab Reservas -->
+                        <div class="tab-pane fade" id="reservas" role="tabpanel">
+                            {% if reservas %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm">
+                                        <thead class="table-warning">
+                                            <tr>
+                                                <th>Libro</th>
+                                                <th>Fecha Reserva</th>
+                                                <th>Vencimiento</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for r in reservas %}
+                                            <tr>
+                                                <td>{{ r.titulo_libro }}</td>
+                                                <td>{{ r.fecha_reserva.strftime('%d/%m/%Y') }}</td>
+                                                <td>{{ r.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
+                                                <td>
+                                                    <span class="badge 
+                                                        {% if r.estado == 'activa' %}bg-info
+                                                        {% elif r.estado == 'completada' %}bg-success
+                                                        {% else %}bg-secondary{% endif %}">
+                                                        {{ r.estado|capitalize }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1"></i>
+                                    <p>No hay reservas registradas.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Tab Multas -->
+                        <div class="tab-pane fade" id="multas" role="tabpanel">
+                            {% if multas %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm">
+                                        <thead class="table-warning">
+                                            <tr>
+                                                <th>Préstamo</th>
+                                                <th>Días Retraso</th>
+                                                <th>Monto</th>
+                                                <th>Estado</th>
+                                                <th>Fecha Pago</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for m in multas %}
+                                            <tr>
+                                                <td>#{{ m.prestamo_id }}</td>
+                                                <td>{{ m.dias_retraso }}</td>
+                                                <td class="fw-bold text-danger">${{ "{:,.0f}".format(m.monto) }}</td>
+                                                <td>
+                                                    <span class="badge 
+                                                        {% if m.estado == 'pendiente' %}bg-danger
+                                                        {% elif m.estado == 'pagada' %}bg-success
+                                                        {% else %}bg-secondary{% endif %}">
+                                                        {{ m.estado|capitalize }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ m.fecha_pago.strftime('%d/%m/%Y') if m.fecha_pago else '-' }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-emoji-smile fs-1 text-success"></i>
+                                    <p>¡Excelente! No tiene multas registradas.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Tab Reseñas -->
+                        <div class="tab-pane fade" id="resenas" role="tabpanel">
+                            {% if resenas %}
+                                {% for r in resenas %}
+                                <div class="card mb-2 border-0 bg-light">
+                                    <div class="card-body py-2">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="mb-1">{{ r.titulo_libro }}</h6>
+                                            <small class="text-warning">
+                                                {% for i in range(r.calificacion) %}<i class="bi bi-star-fill"></i>{% endfor %}
+                                                {% for i in range(5 - r.calificacion) %}<i class="bi bi-star"></i>{% endfor %}
+                                            </small>
+                                        </div>
+                                        <p class="mb-1 small">{{ r.comentario }}</p>
+                                        <small class="text-muted">{{ r.fecha.strftime('%d/%m/%Y') }}</small>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-1"></i>
+                                    <p>No ha escrito reseñas.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

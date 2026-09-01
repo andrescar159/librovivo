@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Libro - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-warning">
+                    <i class="bi bi-plus-circle"></i> Registrar Nuevo Libro
+                </h2>
+                <a href="{{ url_for('libros.catalogo') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al Catálogo
+                </a>
+            </div>
+
+            <form method="POST" action="{{ url_for('libros.crear') }}" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- Columna izquierda: Datos del libro -->
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm border-0 mb-4">
+                            <div class="card-header bg-warning text-dark fw-bold">
+                                <i class="bi bi-book"></i> Información del Libro
+                            </div>
+                            <div class="card-body bg-light">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="isbn" class="form-label fw-bold">ISBN <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="isbn" name="isbn" 
+                                               placeholder="978-3-16-148410-0" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="titulo" class="form-label fw-bold">Título <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="titulo" name="titulo" 
+                                               placeholder="Título completo del libro" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="autores" class="form-label fw-bold">Autor(es) <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="autores" name="autores" 
+                                           placeholder="Gabriel García Márquez, Jorge Luis Borges..." required>
+                                    <div class="form-text">Separa los autores con comas si son varios.</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="editorial" class="form-label fw-bold">Editorial</label>
+                                        <input type="text" class="form-control" id="editorial" name="editorial" 
+                                               placeholder="Editorial Sudamericana">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="anio_publicacion" class="form-label fw-bold">Año de Publicación</label>
+                                        <input type="number" class="form-control" id="anio_publicacion" name="anio_publicacion" 
+                                               min="1000" max="2099" placeholder="1967">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="categoria_id" class="form-label fw-bold">Categoría Dewey <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="categoria_id" name="categoria_id" required>
+                                            <option value="">Selecciona una categoría...</option>
+                                            {% for cat in categorias %}
+                                            <option value="{{ cat.id }}">{{ cat.codigo_dewey }} - {{ cat.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="area_conocimiento" class="form-label fw-bold">Área de Conocimiento Específica</label>
+                                        <input type="text" class="form-control" id="area_conocimiento" name="area_conocimiento" 
+                                               placeholder="Realismo mágico, Ficción...">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="descripcion" class="form-label fw-bold">Descripción / Sinopsis</label>
+                                    <textarea class="form-control" id="descripcion" name="descripcion" rows="4" 
+                                              placeholder="Breve resumen del contenido del libro..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ejemplares -->
+                        <div class="card shadow-sm border-0 mb-4">
+                            <div class="card-header bg-info text-white fw-bold">
+                                <i class="bi bi-layers"></i> Ejemplares
+                            </div>
+                            <div class="card-body bg-light">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="cantidad_ejemplares" class="form-label fw-bold">Cantidad de Ejemplares <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="cantidad_ejemplares" 
+                                               name="cantidad_ejemplares" min="1" value="1" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="ejemplares_prestables" class="form-label fw-bold">Ejemplares Prestable <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="ejemplares_prestables" 
+                                               name="ejemplares_prestables" min="0" value="1" required>
+                                        <div class="form-text">Cuántos se pueden llevar a casa.</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="ubicacion" class="form-label fw-bold">Ubicación General</label>
+                                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" 
+                                               placeholder="Estante 5, Sala A">
+                                    </div>
+                                </div>
+                                <div class="alert alert-warning small">
+                                    <i class="bi bi-info-circle"></i> 
+                                    Los ejemplares no prestables serán de <strong>consulta en sala</strong>. 
+                                    Se generarán códigos de barras automáticamente.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha: Portada y preview -->
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm border-0 mb-4">
+                            <div class="card-header bg-warning text-dark fw-bold">
+                                <i class="bi bi-image"></i> Portada
+                            </div>
+                            <div class="card-body bg-light text-center">
+                                <div id="preview-portada" class="mb-3">
+                                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded"
+                                         style="width: 100%; height: 300px;">
+                                        <div>
+                                            <i class="bi bi-book" style="font-size: 60px;"></i>
+                                            <p class="mt-2 mb-0">Vista previa</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" class="form-control" id="portada" name="portada" 
+                                       accept="image/*">
+                                <div class="form-text">JPG o PNG. Máx 2MB.</div>
+                            </div>
+                        </div>
+
+                        <!-- Resumen antes de guardar -->
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body bg-light">
+                                <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-check-square"></i> Antes de guardar:</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li><i class="bi bi-check-lg text-success"></i> Verifica el ISBN</li>
+                                    <li><i class="bi bi-check-lg text-success"></i> Revisa la categoría Dewey</li>
+                                    <li><i class="bi bi-check-lg text-success"></i> Confirma la cantidad de ejemplares</li>
+                                    <li><i class="bi bi-check-lg text-success"></i> Los ejemplares no prestables son de sala</li>
+                                </ul>
+                                <hr>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-warning text-dark fw-bold btn-lg">
+                                        <i class="bi bi-check-lg"></i> Registrar Libro
+                                    </button>
+                                    <a href="{{ url_for('libros.catalogo') }}" class="btn btn-outline-secondary">
+                                        Cancelar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

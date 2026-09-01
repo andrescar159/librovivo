@@ -1,0 +1,126 @@
+# ============================================
+# PYTHON / FLASK
+# ============================================
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Distribución / empaquetado
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ============================================
+# CONFIGURACION Y CREDENCIALES
+# ============================================
+
+# Variables de entorno (contiene contraseñas)
+.env
+
+# Archivos de configuración local
+instance/
+config_local.py
+
+# ============================================
+# BASES DE DATOS
+# ============================================
+
+# SQLite (si se usa en desarrollo)
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups de base de datos
+*.sql.bak
+*.sql.backup
+
+# ============================================
+# ARCHIVOS SUBIDOS POR USUARIOS
+# ============================================
+
+# Fotos de perfil y portadas (no versionar contenido de usuarios)
+static/uploads/perfiles/*
+static/uploads/portadas/*
+
+# Pero mantener las carpetas con .gitkeep
+!static/uploads/perfiles/.gitkeep
+!static/uploads/portadas/.gitkeep
+
+# ============================================
+# LOGS Y TEMPORALES
+# ============================================
+
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# ============================================
+# IDEs Y EDITORES
+# ============================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# SISTEMA OPERATIVO
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+
+# ============================================
+# OTROS
+# ============================================
+
+# Archivos de documentación del diagrama (opcional)
+markmap.svg
+docs/diagrams/*.svg

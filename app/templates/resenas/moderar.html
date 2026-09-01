@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Moderar Reseña - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-danger">
+                    <i class="bi bi-shield-exclamation"></i> Moderar Reseña
+                </h2>
+                <a href="{{ url_for('resenas.lista') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a Reseñas
+                </a>
+            </div>
+
+            <!-- Alerta de administrador -->
+            <div class="alert alert-warning mb-4">
+                <h6 class="alert-heading fw-bold"><i class="bi bi-exclamation-triangle"></i> Acción de moderación</h6>
+                <p class="mb-0 small">Estás a punto de eliminar una reseña pública. Esta acción no se puede deshacer desde esta interfaz. La reseña se marcará como inactiva y dejará de ser visible para los usuarios.</p>
+            </div>
+
+            <!-- Reseña original -->
+            <div class="card shadow-sm border-0 mb-4 border-start border-4 border-warning">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="bi bi-star"></i> Reseña #{{ resena.id }}
+                </div>
+                <div class="card-body bg-light">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex">
+                            {% if resena.foto_perfil %}
+                            <img src="{{ url_for('static', filename=resena.foto_perfil) }}" 
+                                 class="rounded-circle me-3" alt="" style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                 style="width: 50px; height: 50px; font-size: 20px;">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ resena.nombre_usuario }}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> {{ resena.fecha.strftime('%d/%m/%Y %H:%M') }}
+                                </small>
+                                <div class="mt-1">
+                                    {% for i in range(resena.calificacion) %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% endfor %}
+                                    {% for i in range(5 - resena.calificacion) %}
+                                        <i class="bi bi-star text-warning"></i>
+                                    {% endfor %}
+                                    <span class="ms-1 text-muted">({{ resena.calificacion }}/5)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted d-block">Sobre el libro:</small>
+                            <a href="{{ url_for('libros.ver', id=resena.libro_id) }}" class="fw-bold text-decoration-none">
+                                {{ resena.titulo_libro }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card bg-white border-0">
+                        <div class="card-body">
+                            <p class="mb-0">{{ resena.comentario }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de moderación -->
+            <form method="POST" action="{{ url_for('resenas.procesar_moderacion', id=resena.id) }}">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-danger text-white fw-bold">
+                        <i class="bi bi-trash"></i> Confirmar Eliminación
+                    </div>
+                    <div class="card-body bg-light">
+                        <div class="mb-3">
+                            <label for="motivo" class="form-label fw-bold">Motivo de la eliminación <span class="text-danger">*</span></label>
+                            <select class="form-select" id="motivo" name="motivo" required>
+                                <option value="">Selecciona un motivo...</option>
+                                <option value="contenido_inapropiado">Contenido inapropiado u ofensivo</option>
+                                <option value="spam">Spam o publicidad</option>
+                                <option value="informacion_falsa">Información falsa o engañosa</option>
+                                <option value="duplicado">Reseña duplicada</option>
+                                <option value="otro">Otro motivo</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label fw-bold">Observaciones adicionales</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="3" 
+                                      placeholder="Describe por qué se elimina esta reseña..."></textarea>
+                        </div>
+
+                        <div class="alert alert-danger">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="confirmar" name="confirmar" value="1" required>
+                                <label class="form-check-label fw-bold" for="confirmar">
+                                    Confirmo que he revisado esta reseña y autorizo su eliminación del sistema.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('resenas.lista') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger fw-bold btn-lg">
+                        <i class="bi bi-trash"></i> Eliminar Reseña Permanentemente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

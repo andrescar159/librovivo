@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Reserva - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-info">
+                    <i class="bi bi-bookmark-plus"></i> Nueva Reserva
+                </h2>
+                <a href="{{ url_for('libros.catalogo') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al Catálogo
+                </a>
+            </div>
+
+            <!-- Validaciones del usuario -->
+            {% if not puede_reservar %}
+            <div class="alert alert-danger">
+                <h5 class="alert-heading"><i class="bi bi-x-octagon"></i> No puedes realizar reservas</h5>
+                <p>{{ mensaje_bloqueo }}</p>
+                <hr>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">Volver al inicio</a>
+            </div>
+            {% else %}
+
+            <!-- Info del libro (si viene preseleccionado) -->
+            {% if libro %}
+            <div class="card shadow-sm border-0 mb-4 border-start border-4 border-info">
+                <div class="card-body bg-light">
+                    <div class="d-flex">
+                        {% if libro.portada_url %}
+                        <img src="{{ url_for('static', filename=libro.portada_url) }}" 
+                             class="rounded me-3" alt="" style="width: 100px; height: 130px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white me-3"
+                             style="width: 100px; height: 130px;">
+                            <i class="bi bi-book fs-1"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-1">{{ libro.titulo }}</h5>
+                            <p class="mb-1 text-muted"><i class="bi bi-person"></i> {{ libro.autores|default('Autor desconocido') }}</p>
+                            <p class="mb-1 text-muted"><i class="bi bi-tag"></i> {{ libro.codigo_dewey }} - {{ libro.categoria_nombre }}</p>
+                            <div class="mt-2">
+                                {% if libro.ejemplares_disponibles > 0 %}
+                                    <span class="badge bg-success"><i class="bi bi-check-lg"></i> {{ libro.ejemplares_disponibles }} disponible{{ 's' if libro.ejemplares_disponibles > 1 else '' }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> Todos prestados - Reserva en cola</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Formulario de reserva -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-info text-white fw-bold">
+                    <i class="bi bi-clipboard-check"></i> Confirmar Reserva
+                </div>
+                <div class="card-body bg-light">
+                    <form method="POST" action="{{ url_for('reservas.guardar') }}">
+                        
+                        {% if not libro %}
+                        <div class="mb-3">
+                            <label for="libro_id" class="form-label fw-bold">Seleccionar Libro <span class="text-danger">*</span></label>
+                            <select class="form-select" id="libro_id" name="libro_id" required>
+                                <option value="">Elige un libro...</option>
+                                {% for l in libros_disponibles %}
+                                <option value="{{ l.id }}">{{ l.titulo }} - {{ l.autores|default('') }} ({{ l.ejemplares_disponibles }} disp.)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% else %}
+                        <input type="hidden" name="libro_id" value="{{ libro.id }}">
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Fecha de reserva</label>
+                                <input type="text" class="form-control" value="{{ fecha_hoy.strftime('%d/%m/%Y') }}" disabled>
+                                <div class="form-text">Fecha actual del sistema.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Vencimiento de la reserva</label>
+                                <input type="text" class="form-control fw-bold text-info" 
+                                       value="{{ fecha_vencimiento.strftime('%d/%m/%Y') }}" disabled>
+                                <div class="form-text">La reserva vence en <strong>3 días</strong> si el libro no está disponible.</div>
+                            </div>
+                        </div>
+
+                        <!-- Reglas -->
+                        <div class="alert alert-info small">
+                            <h6 class="fw-bold"><i class="bi bi-info-circle"></i> Reglas de la reserva:</h6>
+                            <ul class="mb-0">
+                                <li>Máximo <strong>2 reservas activas</strong> por estudiante.</li>
+                                <li>Cada reserva tiene una vigencia de <strong>3 días</strong> una vez el libro esté disponible.</li>
+                                <li>Se notificará por correo y dentro de la app cuando el libro esté listo para préstamo.</li>
+                                <li>Si no reclamas el libro en 3 días, la reserva vencerá automáticamente.</li>
+                            </ul>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label fw-bold">Observaciones (opcional)</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="2" 
+                                      placeholder="¿Alguna nota sobre esta reserva?"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('libros.catalogo') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-info text-white fw-bold btn-lg">
+                                <i class="bi bi-bookmark-plus"></i> Confirmar Reserva
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de Morosos - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-danger mb-1">
+                <i class="bi bi-cash-coin"></i> Reporte de Morosos
+            </h2>
+            <p class="text-muted mb-0">Usuarios con multas pendientes de pago</p>
+        </div>
+        <div class="text-end">
+            <a href="{{ url_for('reportes.filtros', tipo='morosos') }}" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-funnel"></i> Cambiar Filtros
+            </a>
+            <a href="{{ url_for('reportes.descargar_pdf', tipo='morosos') }}" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+            </a>
+        </div>
+    </div>
+
+    <!-- Alerta resumen -->
+    <div class="alert alert-danger mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="alert-heading mb-1"><i class="bi bi-exclamation-triangle"></i> Resumen de Morosidad</h5>
+                <p class="mb-0">Total de usuarios morosos: <strong>{{ morosos|length }}</strong></p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <h4 class="mb-0">Total adeudado: <strong>${{ "{:,.0f}".format(total_adeudado|default(0)) }}</strong></h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de morosos -->
+    {% if morosos %}
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-danger">
+                    <tr>
+                        <th>#</th>
+                        <th>Estudiante</th>
+                        <th>Documento</th>
+                        <th>Multas Pendientes</th>
+                        <th>Monto Total</th>
+                        <th>Días Máx. Retraso</th>
+                        <th>Préstamos Vencidos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in morosos %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if m.foto_perfil %}
+                                <img src="{{ url_for('static', filename=m.foto_perfil) }}" 
+                                     class="rounded-circle me-2" alt="" style="width: 35px; height: 35px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                     style="width: 35px; height: 35px; font-size: 14px;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                {% endif %}
+                                <strong>{{ m.nombre }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ m.documento|default('N/A') }}</td>
+                        <td>
+                            <span class="badge bg-danger">{{ m.cantidad_multas }}</span>
+                        </td>
+                        <td class="fw-bold text-danger">
+                            ${{ "{:,.0f}".format(m.monto_total) }}
+                        </td>
+                        <td>
+                            <span class="badge {% if m.max_dias_retraso > 10 %}bg-dark{% else %}bg-warning text-dark{% endif %}">
+                                {{ m.max_dias_retraso }} días
+                            </span>
+                        </td>
+                        <td>{{ m.prestamos_vencidos }}</td>
+                        <td>
+                            <a href="{{ url_for('usuarios.ver', id=m.usuario_id) }}" class="btn btn-sm btn-outline-primary mb-1">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('multas.lista', q=m.documento, estado='pendiente') }}" class="btn btn-sm btn-success mb-1">
+                                <i class="bi bi-cash"></i> Pagar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top morosos -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-trophy"></i> Top 5 Morosos
+        </div>
+        <div class="card-body bg-light">
+            <div class="row">
+                {% for m in top_morosos %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="d-flex align-items-center p-2 bg-white rounded shadow-sm">
+                        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 40px; height: 40px; font-weight: bold;">
+                            {{ loop.index }}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">{{ m.nombre }}</h6>
+                            <small class="text-danger fw-bold">${{ "{:,.0f}".format(m.monto_total) }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-emoji-smile text-success" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">¡Excelente noticia!</h4>
+        <p class="text-muted">No hay usuarios morosos en el sistema. Todos están al día con sus pagos.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

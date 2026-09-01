@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Reservas - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="text-info">
+                <i class="bi bi-bookmark-heart"></i> Mis Reservas
+            </h2>
+            <p class="text-muted mb-0">
+                Tienes <strong>{{ reservas|length }} de 2</strong> reservas activas permitidas.
+            </p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('libros.catalogo') }}" class="btn btn-info text-white fw-bold">
+                <i class="bi bi-search"></i> Buscar Libros
+            </a>
+        </div>
+    </div>
+
+    <!-- Barra de progreso de reservas -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <div class="d-flex justify-content-between mb-1">
+                <small class="fw-bold text-secondary">Reservas usadas</small>
+                <small class="fw-bold text-info">{{ reservas|length }} / 2</small>
+            </div>
+            <div class="progress" style="height: 20px;">
+                <div class="progress-bar bg-info" role="progressbar" 
+                     style="width: {{ (reservas|length / 2) * 100 }}%;">
+                </div>
+            </div>
+            {% if reservas|length >= 2 %}
+            <small class="text-danger"><i class="bi bi-exclamation-triangle"></i> Has alcanzado el límite de reservas.</small>
+            {% else %}
+            <small class="text-muted">Te queda{{ 'n' if (2 - reservas|length) > 1 else '' }} <strong>{{ 2 - reservas|length }}</strong> reserva disponible.</small>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Lista de reservas -->
+    {% if reservas %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for r in reservas %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 {% if r.estado == 'vencida' %}border-secondary{% elif r.dias_restantes <= 1 %}border-warning border-2{% endif %}">
+                <!-- Estado banner -->
+                <div class="card-header d-flex justify-content-between align-items-center
+                    {% if r.estado == 'activa' %}bg-info text-white
+                    {% elif r.estado == 'completada' %}bg-success text-white
+                    {% elif r.estado == 'vencida' %}bg-secondary text-white
+                    {% else %}bg-light text-muted{% endif %}">
+                    <span class="fw-bold">
+                        {% if r.estado == 'activa' %}
+                            <i class="bi bi-bookmark"></i> Activa
+                        {% elif r.estado == 'completada' %}
+                            <i class="bi bi-check-circle"></i> Completada
+                        {% elif r.estado == 'vencida' %}
+                            <i class="bi bi-clock-history"></i> Vencida
+                        {% else %}
+                            <i class="bi bi-x-circle"></i> Cancelada
+                        {% endif %}
+                    </span>
+                    <span class="badge bg-white 
+                        {% if r.estado == 'activa' %}text-info
+                        {% elif r.estado == 'completada' %}text-success
+                        {% elif r.estado == 'vencida' %}text-secondary
+                        {% else %}text-muted{% endif %}">
+                        #{{ r.id }}
+                    </span>
+                </div>
+
+                <div class="card-body bg-light">
+                    <div class="d-flex mb-3">
+                        {% if r.portada_url %}
+                        <img src="{{ url_for('static', filename=r.portada_url) }}" 
+                             class="rounded me-3" alt="" style="width: 80px; height: 110px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white me-3"
+                             style="width: 80px; height: 110px;">
+                            <i class="bi bi-book fs-2"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="card-title mb-1">{{ r.titulo_libro }}</h5>
+                            <p class="card-text text-muted small mb-1"><i class="bi bi-person"></i> {{ r.autor_libro|default('') }}</p>
+                            <p class="card-text text-muted small mb-0"><i class="bi bi-tag"></i> {{ r.categoria_nombre|default('') }}</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="row text-center small">
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Reservado el</p>
+                            <p class="fw-bold mb-0">{{ r.fecha_reserva.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="text-muted mb-1">Vence</p>
+                            <p class="fw-bold mb-0 
+                                {% if r.estado == 'activa' and r.dias_restantes <= 1 %}text-danger{% endif %}">
+                                {{ r.fecha_vencimiento.strftime('%d/%m/%Y') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if r.estado == 'activa' %}
+                        {% if r.dias_restantes > 0 %}
+                        <div class="alert alert-warning small mt-3 mb-0 py-2">
+                            <i class="bi bi-clock"></i> 
+                            {% if r.libro_disponible %}
+                                <strong>¡Libro disponible!</strong> Tienes {{ r.dias_restantes }} día{{ 's' if r.dias_restantes > 1 else '' }} para reclamarlo.
+                            {% else %}
+                                Queda{{ 'n' if r.dias_restantes > 1 else '' }} <strong>{{ r.dias_restantes }} día{{ 's' if r.dias_restantes > 1 else '' }}</strong> para que la reserva venza.
+                            {% endif %}
+                        </div>
+                        {% elif r.dias_restantes == 0 %}
+                        <div class="alert alert-danger small mt-3 mb-0 py-2">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>¡Vence hoy!</strong> Reclama el libro antes de que la reserva expire.
+                        </div>
+                        {% else %}
+                        <div class="alert alert-secondary small mt-3 mb-0 py-2">
+                            <i class="bi bi-clock-history"></i> Esta reserva ha vencido.
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if r.notificacion_enviada %}
+                    <div class="mt-2 text-success small">
+                        <i class="bi bi-envelope-check"></i> Notificación enviada
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer bg-white">
+                    <div class="d-grid gap-2 d-md-block text-center">
+                        <a href="{{ url_for('libros.ver', id=r.libro_id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Ver Libro
+                        </a>
+                        {% if r.estado == 'activa' and r.libro_disponible %}
+                        <a href="{{ url_for('prestamos.nuevo_paso3', estudiante_id=session.usuario_id, libro_id=r.libro_id, desde_reserva=r.id) }}" 
+                           class="btn btn-sm btn-success">
+                            <i class="bi bi-journal-arrow-down"></i> Solicitar Préstamo
+                        </a>
+                        {% endif %}
+                        {% if r.estado == 'activa' %}
+                        <a href="{{ url_for('reservas.cancelar', id=r.id) }}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-bookmark text-muted" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No tienes reservas activas</h4>
+        <p class="text-muted">Explora el catálogo y reserva los libros que te interesen.</p>
+        <a href="{{ url_for('libros.catalogo') }}" class="btn btn-info text-white fw-bold btn-lg">
+            <i class="bi bi-collection"></i> Ir al Catálogo
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

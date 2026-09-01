@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados de Búsqueda - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="mb-4">
+        <h2 class="text-warning">
+            <i class="bi bi-search"></i> Resultados de Búsqueda
+        </h2>
+        <p class="text-muted">
+            {% if query %}
+                Buscando: <span class="fw-bold text-dark">"{{ query }}"</span>
+            {% endif %}
+            {% if categoria_nombre %}
+                en categoría <span class="badge bg-warning text-dark">{{ categoria_nombre }}</span>
+            {% endif %}
+            <span class="ms-2 badge bg-secondary">{{ total_resultados }} resultado{{ 's' if total_resultados != 1 else '' }}</span>
+        </p>
+    </div>
+
+    <!-- Formulario de nueva búsqueda -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="GET" action="{{ url_for('libros.buscar') }}" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold text-secondary">Título, autor o ISBN</label>
+                    <input type="text" class="form-control" name="q" value="{{ query|default('') }}" 
+                           placeholder="Escribe tu búsqueda...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-secondary">Categoría Dewey</label>
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if categoria_id == cat.id %}selected{% endif %}>
+                            {{ cat.codigo_dewey }} - {{ cat.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-warning text-dark w-100 fw-bold">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    {% if libros %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-warning">
+                <tr>
+                    <th style="width: 80px;">Portada</th>
+                    <th>Libro</th>
+                    <th>Autor</th>
+                    <th>Categoría</th>
+                    <th>Disponibles</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for libro in libros %}
+                <tr>
+                    <td>
+                        {% if libro.portada_url %}
+                        <img src="{{ url_for('static', filename=libro.portada_url) }}" 
+                             class="rounded" alt="" style="width: 60px; height: 80px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
+                             style="width: 60px; height: 80px;">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong class="text-dark">{{ libro.titulo }}</strong><br>
+                        <small class="text-muted font-monospace">{{ libro.isbn|default('') }}</small>
+                    </td>
+                    <td>{{ libro.autores|default('Desconocido') }}</td>
+                    <td>
+                        <span class="badge bg-light text-dark border">
+                            {{ libro.codigo_dewey }}
+                        </span><br>
+                        <small class="text-muted">{{ libro.categoria_nombre }}</small>
+                    </td>
+                    <td>
+                        <span class="badge {% if libro.ejemplares_disponibles > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ libro.ejemplares_disponibles }} / {{ libro.total_ejemplares|default(0) }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('libros.ver', id=libro.id) }}" class="btn btn-sm btn-outline-primary mb-1">
+                            <i class="bi bi-eye"></i> Ver
+                        </a>
+                        {% if session.rol in ['admin', 'bibliotecario'] %}
+                        <a href="{{ url_for('libros.editar', id=libro.id) }}" class="btn btn-sm btn-outline-warning mb-1">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        {% endif %}
+                        {% if session.rol in ['estudiante', 'admin'] and libro.ejemplares_disponibles > 0 %}
+                        <a href="{{ url_for('reservas.crear', libro_id=libro.id) }}" class="btn btn-sm btn-success mb-1">
+                            <i class="bi bi-bookmark-plus"></i>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if total_paginas > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if pagina_actual > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('libros.buscar', page=pagina_actual-1, q=query, categoria=categoria_id) }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            {% for p in range(1, total_paginas + 1) %}
+            <li class="page-item {% if p == pagina_actual %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('libros.buscar', page=p, q=query, categoria=categoria_id) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+            {% if pagina_actual < total_paginas %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('libros.buscar', page=pagina_actual+1, q=query, categoria=categoria_id) }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-search text-muted" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No se encontraron resultados</h4>
+        <p class="text-muted">Intenta con otros términos o categorías.</p>
+        <a href="{{ url_for('libros.catalogo') }}" class="btn btn-warning text-dark">
+            <i class="bi bi-collection"></i> Ver catálogo completo
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

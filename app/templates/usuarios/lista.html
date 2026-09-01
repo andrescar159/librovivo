@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuarios - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: var(--naranja-principal);">
+            <i class="bi bi-people"></i> Usuarios
+        </h2>
+        <a href="{{ url_for('usuarios.crear') }}" class="btn btn-librovivo">
+            <i class="bi bi-person-plus"></i> Nuevo Usuario
+        </a>
+    </div>
+    
+    <div class="card card-librovivo">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-librovivo">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Documento</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in usuarios %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td>
+                                {% if u.foto_perfil %}
+                                <img src="{{ url_for('static', filename=u.foto_perfil) }}" class="rounded-circle" width="30" height="30">
+                                {% else %}
+                                <i class="bi bi-person-circle"></i>
+                                {% endif %}
+                                {{ u.nombre }} {{ u.apellido }}
+                            </td>
+                            <td>{{ u.email }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if u.rol == 'admin' %}bg-danger
+                                    {% elif u.rol == 'bibliotecario' %}bg-warning text-dark
+                                    {% else %}bg-info{% endif %}">
+                                    {{ u.rol|title }}
+                                </span>
+                            </td>
+                            <td>{{ u.documento or '-' }}</td>
+                            <td>
+                                {% if u.activo %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Activo</span>
+                                {% else %}
+                                <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('usuarios.ver', usuario_id=u.id) }}" class="btn btn-sm btn-info">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ url_for('usuarios.editar', usuario_id=u.id) }}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if session.rol == 'admin' %}
+                                <form method="POST" action="{{ url_for('usuarios.eliminar', usuario_id=u.id) }}" class="d-inline" 
+                                      onsubmit="return confirm('¿Desactivar este usuario?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
