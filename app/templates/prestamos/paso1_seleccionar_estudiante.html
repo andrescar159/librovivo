@@ -82,7 +82,7 @@
                             </div>
                             <div class="text-end">
                                 {% if e.prestamos_activos < 3 and e.multas_pendientes == 0 %}
-                                <a href="{{ url_for('prestamos.nuevo_paso2', estudiante_id=e.id) }}" 
+                                <a href="{{ url_for('prestamos.nuevo_paso2', usuario_id=e.id) }}" 
                                    class="btn btn-warning text-dark fw-bold">
                                     <i class="bi bi-arrow-right-circle"></i> Seleccionar
                                 </a>
