@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Multas - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="text-danger">
+                <i class="bi bi-cash-coin"></i> Mis Multas
+            </h2>
+            <p class="text-muted mb-0">Historial de multas por retraso en devoluciones</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-danger text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">${{ "{:,.0f}".format(resumen.total_pendiente|default(0)) }}</h3>
+                    <small>Total Pendiente</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">${{ "{:,.0f}".format(resumen.total_pagado|default(0)) }}</h3>
+                    <small>Total Pagado</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ resumen.cantidad_pendientes|default(0) }}</h3>
+                    <small>Multas Pendientes</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    {% if multas %}
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-danger">
+                    <tr>
+                        <th>ID</th>
+                        <th>Libro</th>
+                        <th>Días Retraso</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in multas %}
+                    <tr class="{% if m.estado == 'pendiente' %}table-warning{% endif %}">
+                        <td class="font-monospace">#{{ m.id }}</td>
+                        <td>{{ m.titulo_libro|default('N/A') }}</td>
+                        <td>
+                            <span class="badge {% if m.dias_retraso > 10 %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                {{ m.dias_retraso }} días
+                            </span>
+                        </td>
+                        <td class="fw-bold">
+                            {% if m.estado == 'pendiente' %}
+                                <span class="text-danger">${{ "{:,.0f}".format(m.monto) }}</span>
+                            {% else %}
+                                <span class="text-success">${{ "{:,.0f}".format(m.monto) }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if m.estado == 'pendiente' %}bg-danger
+                                {% elif m.estado == 'pagada' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ m.estado|capitalize }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('multas.ver', id=m.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Ver
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-emoji-smile text-success" style="font-size: 80px;"></i>
+        <h4 class="text-muted mt-3">No tienes multas registradas</h4>
+        <p class="text-muted">¡Excelente! Devuelves los libros a tiempo.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

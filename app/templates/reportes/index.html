@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="text-warning">
+                <i class="bi bi-file-earmark-bar-graph"></i> Reportes y Estadísticas
+            </h2>
+            <p class="text-muted mb-0">Panel de reportes administrativos del sistema</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-primary text-white">
+                <div class="card-body">
+                    <i class="bi bi-book fs-1 mb-2"></i>
+                    <h3 class="mb-0">{{ total_libros|default(0) }}</h3>
+                    <small>Libros Activos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-success text-white">
+                <div class="card-body">
+                    <i class="bi bi-people fs-1 mb-2"></i>
+                    <h3 class="mb-0">{{ total_usuarios|default(0) }}</h3>
+                    <small>Usuarios Activos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-warning text-dark">
+                <div class="card-body">
+                    <i class="bi bi-journal-arrow-down fs-1 mb-2"></i>
+                    <h3 class="mb-0">{{ total_prestamos_activos|default(0) }}</h3>
+                    <small>Préstamos Activos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center bg-danger text-white">
+                <div class="card-body">
+                    <i class="bi bi-cash-coin fs-1 mb-2"></i>
+                    <h3 class="mb-0">{{ total_multas_pendientes|default(0) }}</h3>
+                    <small>Multas Pendientes</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menú de reportes -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body bg-light text-center p-4">
+                    <i class="bi bi-journal-arrow-down text-warning fs-1 mb-3"></i>
+                    <h5 class="card-title">Préstamos</h5>
+                    <p class="card-text text-muted small">Préstamos por período, estado y usuario.</p>
+                    <a href="{{ url_for('reportes.filtros', tipo='prestamos') }}" class="btn btn-warning text-dark fw-bold btn-sm">
+                        <i class="bi bi-file-earmark-text"></i> Generar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body bg-light text-center p-4">
+                    <i class="bi bi-cash-coin text-danger fs-1 mb-3"></i>
+                    <h5 class="card-title">Morosos</h5>
+                    <p class="card-text text-muted small">Usuarios con multas pendientes de pago.</p>
+                    <a href="{{ url_for('reportes.reporte_morosos') }}" class="btn btn-danger fw-bold btn-sm">
+                        <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body bg-light text-center p-4">
+                    <i class="bi bi-box-seam text-success fs-1 mb-3"></i>
+                    <h5 class="card-title">Inventario</h5>
+                    <p class="card-text text-muted small">Libros, ejemplares y disponibilidad actual.</p>
+                    <a href="{{ url_for('reportes.reporte_inventario') }}" class="btn btn-success fw-bold btn-sm">
+                        <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body bg-light text-center p-4">
+                    <i class="bi bi-people text-primary fs-1 mb-3"></i>
+                    <h5 class="card-title">Usuarios</h5>
+                    <p class="card-text text-muted small">Registro y actividad de usuarios del sistema.</p>
+                    <a href="{{ url_for('reportes.filtros', tipo='usuarios') }}" class="btn btn-primary fw-bold btn-sm">
+                        <i class="bi bi-file-earmark-text"></i> Generar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body bg-light text-center p-4">
+                    <i class="bi bi-bookmark text-info fs-1 mb-3"></i>
+                    <h5 class="card-title">Reservas</h5>
+                    <p class="card-text text-muted small">Reservas por período y estado.</p>
+                    <a href="{{ url_for('reportes.filtros', tipo='reservas') }}" class="btn btn-info text-white fw-bold btn-sm">
+                        <i class="bi bi-file-earmark-text"></i> Generar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body bg-light text-center p-4">
+                    <i class="bi bi-graph-up-arrow text-secondary fs-1 mb-3"></i>
+                    <h5 class="card-title">Estadísticas</h5>
+                    <p class="card-text text-muted small">Métricas generales y tendencias anuales.</p>
+                    <a href="{{ url_for('reportes.estadisticas') }}" class="btn btn-secondary fw-bold btn-sm">
+                        <i class="bi bi-bar-chart"></i> Ver Estadísticas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

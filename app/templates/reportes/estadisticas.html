@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Estadísticas {{ anio }} - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="text-warning">
+                <i class="bi bi-graph-up-arrow"></i> Estadísticas {{ anio }}
+            </h2>
+            <p class="text-muted mb-0">Métricas y tendencias del sistema bibliotecario</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('reportes.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver a Reportes
+            </a>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">${{ "{:,.0f}".format(total_recaudado|default(0)) }}</h3>
+                    <small>Total Recaudado (Multas)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ libros_populares|length }}</h3>
+                    <small>Libros en Top 10</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-danger text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">{{ top_morosos|length }}</h3>
+                    <small>Top Morosos</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Préstamos por mes -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="bi bi-calendar-month"></i> Préstamos por Mes
+                </div>
+                <div class="card-body bg-light">
+                    {% if prestamos_mensuales %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-warning">
+                                <tr>
+                                    <th>Mes</th>
+                                    <th class="text-end">Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pm in prestamos_mensuales %}
+                                <tr>
+                                    <td>{{ pm.mes|default('N/A') }}</td>
+                                    <td class="text-end fw-bold">{{ pm.cantidad|default(0) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-calendar-x fs-1"></i>
+                        <p>No hay datos de préstamos para {{ anio }}.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Libros más populares -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="bi bi-trophy"></i> Libros Más Prestados
+                </div>
+                <div class="card-body bg-light">
+                    {% if libros_populares %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Libro</th>
+                                    <th class="text-end">Préstamos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lp in libros_populares %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        <a href="{{ url_for('libros.ver', id=lp.id) }}" class="text-decoration-none">
+                                            {{ lp.titulo|default('N/A') }}
+                                        </a>
+                                    </td>
+                                    <td class="text-end fw-bold">{{ lp.total_prestamos|default(0) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-book fs-1"></i>
+                        <p>No hay suficientes datos de préstamos.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top morosos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-danger text-white fw-bold">
+                    <i class="bi bi-exclamation-triangle"></i> Top Morosos
+                </div>
+                <div class="card-body bg-light">
+                    {% if top_morosos %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-danger">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Estudiante</th>
+                                    <th class="text-end">Multas</th>
+                                    <th class="text-end">Monto Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tm in top_morosos %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ tm.nombre|default('N/A') }}</td>
+                                    <td class="text-end">{{ tm.total_multas|default(0) }}</td>
+                                    <td class="text-end fw-bold text-danger">
+                                        ${{ "{:,.0f}".format(tm.monto_total|default(0)) }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-emoji-smile fs-1 text-success"></i>
+                        <p>No hay morosos registrados. ¡Todos pagan a tiempo!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

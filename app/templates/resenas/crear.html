@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Escribir Reseña - {{ libro.titulo[:40] }}{% if libro.titulo|length > 40 %}...{% endif %} - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('libros.catalogo') }}">Catálogo</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('libros.ver', id=libro.id) }}">{{ libro.titulo[:30] }}{% if libro.titulo|length > 30 %}...{% endif %}</a></li>
+                    <li class="breadcrumb-item active">Escribir Reseña</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="bi bi-pencil"></i> Escribir Reseña</h4>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="d-flex align-items-center mb-4">
+                        {% if libro.portada_url %}
+                        <img src="{{ url_for('static', filename=libro.portada_url) }}" 
+                             class="rounded me-3" alt="" style="width: 60px; height: 85px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white me-3"
+                             style="width: 60px; height: 85px;">
+                            <i class="bi bi-book fs-4"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-0">{{ libro.titulo }}</h5>
+                            <small class="text-muted">Comparte tu opinión con la comunidad</small>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('resenas.crear', libro_id=libro.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Calificación</label>
+                            <div class="d-flex gap-2" id="estrellas">
+                                {% for i in range(1, 6) %}
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input d-none" type="radio" name="calificacion" 
+                                           id="star{{ i }}" value="{{ i }}" required {% if i == 5 %}checked{% endif %}>
+                                    <label class="form-check-label fs-2 text-warning" for="star{{ i }}" 
+                                           style="cursor: pointer;" onclick="seleccionarEstrella({{ i }})">
+                                        <i class="bi bi-star" id="icono-star{{ i }}"></i>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">Selecciona de 1 a 5 estrellas</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comentario" class="form-label fw-bold">Comentario</label>
+                            <textarea class="form-control" id="comentario" name="comentario" rows="4" 
+                                      placeholder="¿Qué te pareció el libro? ¿Lo recomendarías?" maxlength="1000"></textarea>
+                            <small class="text-muted">Máximo 1000 caracteres</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-warning text-dark fw-bold">
+                                <i class="bi bi-send"></i> Publicar Reseña
+                            </button>
+                            <a href="{{ url_for('libros.ver', id=libro.id) }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function seleccionarEstrella(n) {
+    for (let i = 1; i <= 5; i++) {
+        const icono = document.getElementById('icono-star' + i);
+        if (i <= n) {
+            icono.classList.remove('bi-star');
+            icono.classList.add('bi-star-fill');
+        } else {
+            icono.classList.remove('bi-star-fill');
+            icono.classList.add('bi-star');
+        }
+    }
+}
+// Inicializar
+seleccionarEstrella(5);
+</script>
+{% endblock %}

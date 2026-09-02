@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Multa #{{ multa.id }} - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Inicio</a></li>
+            {% if session.rol in ['admin', 'bibliotecario'] %}
+            <li class="breadcrumb-item"><a href="{{ url_for('multas.lista') }}">Multas</a></li>
+            {% else %}
+            <li class="breadcrumb-item"><a href="{{ url_for('multas.mis_multas') }}">Mis Multas</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">Multa #{{ multa.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header 
+                    {% if multa.estado == 'pendiente' %}bg-danger text-white
+                    {% elif multa.estado == 'pagada' %}bg-success text-white
+                    {% else %}bg-secondary text-white{% endif %}">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cash-coin"></i> Multa #{{ multa.id }}
+                        <span class="float-end badge bg-white 
+                            {% if multa.estado == 'pendiente' %}text-danger
+                            {% elif multa.estado == 'pagada' %}text-success
+                            {% else %}text-secondary{% endif %}">
+                            {{ multa.estado|capitalize }}
+                        </span>
+                    </h4>
+                </div>
+                <div class="card-body bg-light">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">Estudiante</small>
+                            <p class="fw-bold mb-1">{{ multa.nombre_estudiante|default('N/A') }}</p>
+                            <small class="text-muted">{{ multa.documento_estudiante|default('') }}</small>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small class="text-muted">Monto</small>
+                            <h3 class="{% if multa.estado == 'pendiente' %}text-danger{% else %}text-success{% endif %} mb-0">
+                                ${{ "{:,.0f}".format(multa.monto|default(0)) }}
+                            </h3>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">Préstamo relacionado</small>
+                            <p class="mb-0">
+                                <a href="{{ url_for('prestamos.ver', id=multa.prestamo_id) }}" class="text-decoration-none">
+                                    #{{ multa.prestamo_id }}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Libro</small>
+                            <p class="mb-0">{{ multa.titulo_libro|default('N/A') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">Días de retraso</small>
+                            <p class="mb-0">
+                                <span class="badge bg-warning text-dark">{{ multa.dias_retraso|default(0) }} días</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Fecha de generación</small>
+                            <p class="mb-0">{{ multa.fecha_generacion.strftime('%d/%m/%Y %H:%M') if multa.fecha_generacion else '-' }}</p>
+                        </div>
+                    </div>
+
+                    {% if multa.fecha_pago %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">Fecha de pago</small>
+                            <p class="mb-0 text-success fw-bold">{{ multa.fecha_pago.strftime('%d/%m/%Y %H:%M') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Registrado por</small>
+                            <p class="mb-0">{{ multa.nombre_bibliotecario|default('Sistema') }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if multa.observaciones %}
+                    <hr>
+                    <small class="text-muted">Observaciones</small>
+                    <p class="mb-0">{{ multa.observaciones }}</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white">
+                    {% if multa.estado == 'pendiente' and session.rol in ['admin', 'bibliotecario'] %}
+                    <a href="{{ url_for('multas.pagar', id=multa.id) }}" class="btn btn-success fw-bold">
+                        <i class="bi bi-cash"></i> Registrar Pago
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('multas.lista') if session.rol in ['admin', 'bibliotecario'] else url_for('multas.mis_multas') }}" 
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
