@@ -12,7 +12,7 @@
                     <i class="bi bi-pencil-square"></i> Editar Libro
                 </h2>
                 <div>
-                    <a href="{{ url_for('libros.ver', id=libro.id) }}" class="btn btn-outline-primary me-2">
+                    <a href="{{ url_for('libros.ver', libro_id=libro.id) }}" class="btn btn-outline-primary me-2"></a>
                         <i class="bi bi-eye"></i> Ver
                     </a>
                     <a href="{{ url_for('libros.catalogo') }}" class="btn btn-outline-secondary">

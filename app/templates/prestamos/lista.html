@@ -29,10 +29,10 @@
                     <label class="form-label fw-bold text-secondary">Estado</label>
                     <select name="estado" class="form-select">
                         <option value="">Todos</option>
-                        <option value="activo" {% if estado_filtro == 'activo' %}selected{% endif %}>Activos</option>
-                        <option value="devuelto" {% if estado_filtro == 'devuelto' %}selected{% endif %}>Devueltos</option>
-                        <option value="vencido" {% if estado_filtro == 'vencido' %}selected{% endif %}>Vencidos</option>
-                        <option value="perdido" {% if estado_filtro == 'perdido' %}selected{% endif %}>Perdidos</option>
+                        <option value="activo" {% if estado == 'activo' %}selected{% endif %}>Activos</option>
+                        <option value="devuelto" {% if estado == 'devuelto' %}selected{% endif %}>Devueltos</option>
+                        <option value="vencido" {% if estado == 'vencido' %}selected{% endif %}>Vencidos</option>
+                        <option value="perdido" {% if estado == 'perdido' %}selected{% endif %}>Perdidos</option>
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -99,7 +99,6 @@
                         <th>ID</th>
                         <th>Estudiante</th>
                         <th>Libro</th>
-                        <th>Código</th>
                         <th>Préstamo</th>
                         <th>Devolución</th>
                         <th>Estado</th>
@@ -109,31 +108,20 @@
                 </thead>
                 <tbody>
                     {% for p in prestamos %}
-                    <tr class="{% if p.estado == 'vencido' %}table-danger{% elif p.estado == 'activo' and p.dias_restantes <= 2 %}table-warning{% endif %}">
+                    <tr>
                         <td class="font-monospace">#{{ p.id }}</td>
                         <td>
-                            <strong>{{ p.nombre_estudiante }}</strong><br>
-                            <small class="text-muted">{{ p.documento_estudiante }}</small>
+                            <strong>{{ p.usuario_nombre|default('') }} {{ p.usuario_apellido|default('') }}</strong>
                         </td>
                         <td>
-                            <strong>{{ p.titulo_libro }}</strong><br>
-                            <small class="text-muted">{{ p.autor_libro|default('') }}</small>
+                            <strong>{{ p.libro_titulo|default('N/A') }}</strong>
                         </td>
-                        <td class="font-monospace small">{{ p.codigo_barras }}</td>
                         <td>
-                            {{ p.fecha_prestamo.strftime('%d/%m/%Y') }}<br>
-                            <small class="text-muted">{{ p.fecha_prestamo.strftime('%H:%M') }}</small>
+                            {{ p.fecha_prestamo.strftime('%d/%m/%Y') if p.fecha_prestamo else '-' }}
                         </td>
                         <td>
                             {% if p.estado == 'activo' %}
-                                <strong>{{ p.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}</strong><br>
-                                {% if p.dias_restantes > 0 %}
-                                    <small class="text-success"><i class="bi bi-clock"></i> {{ p.dias_restantes }} días</small>
-                                {% elif p.dias_restantes == 0 %}
-                                    <small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Vence hoy</small>
-                                {% else %}
-                                    <small class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ p.dias_restantos|abs }} días vencido</small>
-                                {% endif %}
+                                <strong>{{ p.fecha_devolucion_prevista.strftime('%d/%m/%Y') if p.fecha_devolucion_prevista else '-' }}</strong>
                             {% else %}
                                 {{ p.fecha_devolucion_real.strftime('%d/%m/%Y') if p.fecha_devolucion_real else '-' }}
                             {% endif %}
@@ -147,21 +135,16 @@
                                 {{ p.estado|capitalize }}
                             </span>
                         </td>
-                        <td>{{ p.renovaciones_usadas }}/3</td>
+                        <td>{{ p.renovaciones_usadas|default(0) }}/3</td>
                         <td>
                             {% if session.rol in ['admin', 'bibliotecario'] %}
                                 {% if p.estado == 'activo' %}
-                                <a href="{{ url_for('prestamos.devolver', id=p.id) }}" class="btn btn-sm btn-success mb-1" title="Devolver">
+                                <a href="{{ url_for('prestamos.devolver', prestamo_id=p.id) }}" class="btn btn-sm btn-success mb-1" title="Devolver">
                                     <i class="bi bi-check-lg"></i>
                                 </a>
                                 {% endif %}
-                                {% if p.estado == 'vencido' %}
-                                <a href="{{ url_for('multas.pagar', prestamo_id=p.id) }}" class="btn btn-sm btn-danger mb-1" title="Multa">
-                                    <i class="bi bi-cash-coin"></i>
-                                </a>
-                                {% endif %}
                             {% endif %}
-                            <a href="{{ url_for('prestamos.ver', id=p.id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Ver detalle">
+                            <a href="{{ url_for('prestamos.ver', prestamo_id=p.id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Ver detalle">
                                 <i class="bi bi-eye"></i>
                             </a>
                         </td>
@@ -178,19 +161,19 @@
         <ul class="pagination justify-content-center">
             {% if pagina_actual > 1 %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('prestamos.lista', page=pagina_actual-1, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">
+                <a class="page-link" href="{{ url_for('prestamos.lista', pagina=pagina_actual-1, estado=estado, q=query, fecha=fecha_filtro) }}">
                     <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
             {% endif %}
             {% for p in range(1, total_paginas + 1) %}
             <li class="page-item {% if p == pagina_actual %}active{% endif %}">
-                <a class="page-link" href="{{ url_for('prestamos.lista', page=p, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">{{ p }}</a>
+                <a class="page-link" href="{{ url_for('prestamos.lista', pagina=p, estado=estado, q=query, fecha=fecha_filtro) }}">{{ p }}</a>
             </li>
             {% endfor %}
             {% if pagina_actual < total_paginas %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('prestamos.lista', page=pagina_actual+1, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">
+                <a class="page-link" href="{{ url_for('prestamos.lista', pagina=pagina_actual+1, estado=estado, q=query, fecha=fecha_filtro) }}">
                     <i class="bi bi-chevron-right"></i>
                 </a>
             </li>

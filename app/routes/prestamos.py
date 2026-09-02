@@ -24,9 +24,10 @@ def lista():
     """
     estado = request.args.get('estado', 'activo')
     pagina = request.args.get('pagina', 1, type=int)
+    por_pagina = 10
     
     if estado == 'activo':
-        prestamos = Prestamo.listar_activos(pagina=pagina)
+        prestamos = Prestamo.listar_activos(pagina=pagina, por_pagina=por_pagina)
     elif estado == 'vencidos':
         prestamos = Prestamo.listar_vencidos()
     else:
@@ -42,9 +43,33 @@ def lista():
             LIMIT %s OFFSET %s
         """
         from app.database import ejecutar_consulta
-        prestamos = ejecutar_consulta(sql, (10, (pagina - 1) * 10), fetchall=True) or []
+        prestamos = ejecutar_consulta(sql, (por_pagina, (pagina - 1) * por_pagina), fetchall=True) or []
     
-    return render_template('prestamos/lista.html', prestamos=prestamos, estado=estado)
+    # Calcular total para paginacion
+    total_sql = "SELECT COUNT(*) as total FROM prestamos WHERE 1=1"
+    if estado == 'activo':
+        total_sql += " AND estado = 'activo'"
+    elif estado == 'vencidos':
+        total_sql += " AND estado = 'activo' AND fecha_devolucion_prevista < CURDATE()"
+    total_result = ejecutar_consulta(total_sql, fetchone=True)
+    total_prestamos = total_result['total'] if total_result else 0
+    total_paginas = (total_prestamos + por_pagina - 1) // por_pagina
+    
+    # Resumen (valores por defecto para evitar errores)
+    resumen = {
+        'activos': 0,
+        'devueltos': 0,
+        'vencidos': 0,
+        'vencen_manana': 0
+    }
+    
+    return render_template('prestamos/lista.html',
+                         prestamos=prestamos,
+                         estado=estado,
+                         estado_filtro=estado,
+                         pagina_actual=pagina,
+                         total_paginas=total_paginas,
+                         resumen=resumen)
 
 
 @prestamos_bp.route('/nuevo/paso1', methods=['GET', 'POST'])

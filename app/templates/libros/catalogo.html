@@ -115,7 +115,7 @@
                     </div>
 
                     <div class="mt-auto d-grid gap-2">
-                        <a href="{{ url_for('libros.ver', id=libro.id) }}" class="btn btn-outline-warning btn-sm">
+                        <a href="{{ url_for('libros.ver', libro_id=libro.id) }}" class="btn btn-outline-warning btn-sm"></a>
                             <i class="bi bi-eye"></i> Ver Detalle
                         </a>
                         {% if session.rol == 'estudiante' or session.rol == 'admin' %}

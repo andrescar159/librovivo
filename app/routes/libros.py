@@ -23,19 +23,30 @@ def catalogo():
     categoria_id = request.args.get('categoria', type=int)
     query = request.args.get('q', '').strip()
     pagina = request.args.get('pagina', 1, type=int)
+    por_pagina = 12  # Libros por página
     
     categorias = CategoriaDewey.listar_todas()
     
     if query:
         libros = Libro.buscar(query, categoria_id=categoria_id)
+        # Búsqueda no tiene paginación en el modelo, así que mostramos todos
+        total_paginas = 1
+        pagina_actual = 1
     else:
-        libros = Libro.listar_todos(activo=True, categoria_id=categoria_id, pagina=pagina)
+        # Calcular total para paginación
+        total_libros = Libro.contar(activo=True, categoria_id=categoria_id)
+        total_paginas = (total_libros + por_pagina - 1) // por_pagina
+        pagina_actual = pagina
+        
+        libros = Libro.listar_todos(activo=True, categoria_id=categoria_id, pagina=pagina, por_pagina=por_pagina)
     
     return render_template('libros/catalogo.html',
                          libros=libros,
                          categorias=categorias,
                          query=query,
-                         categoria_seleccionada=categoria_id)
+                         categoria_seleccionada=categoria_id,
+                         pagina_actual=pagina_actual,
+                         total_paginas=total_paginas)
 
 
 @libros_bp.route('/buscar', methods=['GET', 'POST'])

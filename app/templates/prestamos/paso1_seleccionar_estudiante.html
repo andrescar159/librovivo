@@ -71,26 +71,18 @@
                                         <i class="bi bi-envelope"></i> {{ e.email }}
                                     </small>
                                     <div class="mt-1">
-                                        <span class="badge bg-primary"><i class="bi bi-book"></i> {{ e.prestamos_activos|default(0) }}/3 préstamos</span>
-                                        {% if e.multas_pendientes > 0 %}
-                                        <span class="badge bg-danger"><i class="bi bi-cash-coin"></i> ${{ "{:,.0f}".format(e.multas_pendientes) }} multas</span>
-                                        {% else %}
-                                        <span class="badge bg-success"><i class="bi bi-check-lg"></i> Sin multas</span>
-                                        {% endif %}
+                                        <div class="mt-1">
+                                        <span class="badge bg-primary"><i class="bi bi-book"></i> Estudiante</span>
+                                        <span class="badge bg-success"><i class="bi bi-check-lg"></i> Activo</span>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="text-end">
-                                {% if e.prestamos_activos < 3 and e.multas_pendientes == 0 %}
                                 <a href="{{ url_for('prestamos.nuevo_paso2', usuario_id=e.id) }}" 
-                                   class="btn btn-warning text-dark fw-bold">
+                                class="btn btn-warning text-dark fw-bold">
                                     <i class="bi bi-arrow-right-circle"></i> Seleccionar
                                 </a>
-                                {% elif e.multas_pendientes > 0 %}
-                                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Tiene multas</span>
-                                {% else %}
-                                <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Límite alcanzado</span>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
