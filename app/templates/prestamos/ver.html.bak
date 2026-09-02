@@ -40,8 +40,8 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <small class="text-muted">Estudiante</small>
-                            <p class="fw-bold mb-1">{{ prestamo.usuario_nombre|default('N/A') }}</p>
-                            <small class="text-muted">{{ prestamo.documento|default('')|default('') }}</small>
+                            <p class="fw-bold mb-1">{{ prestamo.nombre_estudiante|default('N/A') }}</p>
+                            <small class="text-muted">{{ prestamo.documento_estudiante|default('') }}</small>
                         </div>
                         <div class="col-md-6 text-md-end">
                             <small class="text-muted">Bibliotecario</small>
@@ -54,7 +54,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <small class="text-muted">Libro</small>
-                            <p class="fw-bold mb-1">{{ prestamo.libro_titulo|default('N/A') }}</p>
+                            <p class="fw-bold mb-1">{{ prestamo.titulo_libro|default('N/A') }}</p>
                             <small class="text-muted">{{ prestamo.autor_libro|default('') }}</small>
                         </div>
                         <div class="col-md-6 text-md-end">
@@ -115,12 +115,12 @@
                 </div>
                 <div class="card-footer bg-white">
                     {% if session.rol in ['admin', 'bibliotecario'] and prestamo.estado == 'activo' %}
-                    <a href="{{ url_for('prestamos.devolver', prestamo_id=prestamo.id) }}" class="btn btn-success fw-bold">
+                    <a href="{{ url_for('prestamos.devolver', id=prestamo.id) }}" class="btn btn-success fw-bold">
                         <i class="bi bi-check-lg"></i> Registrar Devolución
                     </a>
                     {% endif %}
                     {% if session.rol == 'estudiante' and prestamo.estado == 'activo' %}
-                    <form action="{{ url_for('prestamos.renovar', prestamo_id=prestamo.id) }}" method="POST" class="d-inline">
+                    <form action="{{ url_for('prestamos.renovar', id=prestamo.id) }}" method="POST" class="d-inline">
                         <button type="submit" class="btn btn-warning text-dark fw-bold">
                             <i class="bi bi-arrow-repeat"></i> Renovar
                         </button>

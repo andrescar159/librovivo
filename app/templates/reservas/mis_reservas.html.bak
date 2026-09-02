@@ -85,9 +85,9 @@
                         </div>
                         {% endif %}
                         <div>
-                            <h5 class="card-title mb-1">{{ r.libro_titulo }}</h5>
-                            <p class="card-text text-muted small mb-1"><i class="bi bi-person"></i> {{ r.autor_libro|default('')|default('') }}</p>
-                            <p class="card-text text-muted small mb-0"><i class="bi bi-tag"></i> {{ r.categoria_nombre|default('')|default('') }}</p>
+                            <h5 class="card-title mb-1">{{ r.titulo_libro }}</h5>
+                            <p class="card-text text-muted small mb-1"><i class="bi bi-person"></i> {{ r.autor_libro|default('') }}</p>
+                            <p class="card-text text-muted small mb-0"><i class="bi bi-tag"></i> {{ r.categoria_nombre|default('') }}</p>
                         </div>
                     </div>
 
@@ -111,7 +111,7 @@
                         {% if r.dias_restantes > 0 %}
                         <div class="alert alert-warning small mt-3 mb-0 py-2">
                             <i class="bi bi-clock"></i> 
-                            {% if r.ejemplares_disponibles > 0 %}
+                            {% if r.libro_disponible %}
                                 <strong>¡Libro disponible!</strong> Tienes {{ r.dias_restantes }} día{{ 's' if r.dias_restantes > 1 else '' }} para reclamarlo.
                             {% else %}
                                 Queda{{ 'n' if r.dias_restantes > 1 else '' }} <strong>{{ r.dias_restantes }} día{{ 's' if r.dias_restantes > 1 else '' }}</strong> para que la reserva venza.
@@ -137,17 +137,17 @@
 
                 <div class="card-footer bg-white">
                     <div class="d-grid gap-2 d-md-block text-center">
-                        <a href="{{ url_for('libros.ver', libro_id=r.libro_id) }}" class="btn btn-sm btn-outline-primary">
+                        <a href="{{ url_for('libros.ver', id=r.libro_id) }}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye"></i> Ver Libro
                         </a>
-                        {% if r.estado == 'activa' and r.ejemplares_disponibles > 0 %}
-                        <a href="{{ url_for('prestamos.nuevo_paso3', usuario_id=session.usuario_id, libro_id=r.libro_id, desde_reserva=r.id) }}" 
+                        {% if r.estado == 'activa' and r.libro_disponible %}
+                        <a href="{{ url_for('prestamos.nuevo_paso3', estudiante_id=session.usuario_id, libro_id=r.libro_id, desde_reserva=r.id) }}" 
                            class="btn btn-sm btn-success">
                             <i class="bi bi-journal-arrow-down"></i> Solicitar Préstamo
                         </a>
                         {% endif %}
                         {% if r.estado == 'activa' %}
-                        <a href="{{ url_for('reservas.cancelar', reserva_id=r.id) }}" class="btn btn-sm btn-outline-danger">
+                        <a href="{{ url_for('reservas.cancelar', id=r.id) }}" class="btn btn-sm btn-outline-danger">
                             <i class="bi bi-x-lg"></i> Cancelar
                         </a>
                         {% endif %}

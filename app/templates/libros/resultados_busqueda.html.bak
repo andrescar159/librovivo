@@ -98,7 +98,7 @@
                             <i class="bi bi-eye"></i> Ver
                         </a>
                         {% if session.rol in ['admin', 'bibliotecario'] %}
-                        <a href="{{ url_for('libros.editar', libro_id=libro.id) }}" class="btn btn-sm btn-outline-warning mb-1">
+                        <a href="{{ url_for('libros.editar', id=libro.id) }}" class="btn btn-sm btn-outline-warning mb-1">
                             <i class="bi bi-pencil"></i>
                         </a>
                         {% endif %}

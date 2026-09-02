@@ -87,7 +87,7 @@
                             </span>
                         </td>
                         <td>
-                            <a href="{{ url_for('multas.ver', multa_id=m.id) }}" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ url_for('multas.ver', id=m.id) }}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye"></i> Ver
                             </a>
                         </td>

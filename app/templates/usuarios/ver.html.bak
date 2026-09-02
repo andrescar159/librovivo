@@ -13,7 +13,7 @@
             <a href="{{ url_for('usuarios.lista') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Volver
             </a>
-            <a href="{{ url_for('usuarios.editar', usuario_id=usuario.id) }}" class="btn btn-warning text-dark">
+            <a href="{{ url_for('usuarios.editar', id=usuario.id) }}" class="btn btn-warning text-dark">
                 <i class="bi bi-pencil"></i> Editar
             </a>
         </div>
@@ -75,15 +75,15 @@
                 <div class="card-body">
                     <div class="row text-center">
                         <div class="col-4">
-                            <h5 class="text-primary mb-0">{{ resumen.prestamos_activos|default(0)|default(0) }}</h5>
+                            <h5 class="text-primary mb-0">{{ resumen.prestamos_activos|default(0) }}</h5>
                             <small class="text-muted">Préstamos</small>
                         </div>
                         <div class="col-4">
-                            <h5 class="text-warning mb-0">{{ resumen.reservas_activas|default(0)|default(0) }}</h5>
+                            <h5 class="text-warning mb-0">{{ resumen.reservas_activas|default(0) }}</h5>
                             <small class="text-muted">Reservas</small>
                         </div>
                         <div class="col-4">
-                            <h5 class="text-danger mb-0">${{ resumen.multas_pendientes|default(0)|default(0) }}</h5>
+                            <h5 class="text-danger mb-0">${{ resumen.multas_pendientes|default(0) }}</h5>
                             <small class="text-muted">Multas</small>
                         </div>
                     </div>
@@ -142,7 +142,7 @@
                                         <tbody>
                                             {% for p in prestamos %}
                                             <tr>
-                                                <td>{{ p.libro_titulo }}</td>
+                                                <td>{{ p.titulo_libro }}</td>
                                                 <td>{{ p.fecha_prestamo.strftime('%d/%m/%Y') }}</td>
                                                 <td>{{ p.fecha_devolucion_prevista.strftime('%d/%m/%Y') }}</td>
                                                 <td>
@@ -184,7 +184,7 @@
                                         <tbody>
                                             {% for r in reservas %}
                                             <tr>
-                                                <td>{{ r.libro_titulo }}</td>
+                                                <td>{{ r.titulo_libro }}</td>
                                                 <td>{{ r.fecha_reserva.strftime('%d/%m/%Y') }}</td>
                                                 <td>{{ r.fecha_vencimiento.strftime('%d/%m/%Y') }}</td>
                                                 <td>
@@ -257,7 +257,7 @@
                                 <div class="card mb-2 border-0 bg-light">
                                     <div class="card-body py-2">
                                         <div class="d-flex justify-content-between">
-                                            <h6 class="mb-1">{{ r.libro_titulo }}</h6>
+                                            <h6 class="mb-1">{{ r.titulo_libro }}</h6>
                                             <small class="text-warning">
                                                 {% for i in range(r.calificacion) %}<i class="bi bi-star-fill"></i>{% endfor %}
                                                 {% for i in range(5 - r.calificacion) %}<i class="bi bi-star"></i>{% endfor %}

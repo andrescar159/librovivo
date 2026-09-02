@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Admin - LibroVivo{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4" style="color: var(--naranja-principal);">
+        <i class="bi bi-speedometer2"></i> Panel de Administracion
+    </h2>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card stat-card-naranja">
+                <div class="stat-number">{{ stats.total_usuarios }}</div>
+                <div class="stat-label"><i class="bi bi-people"></i> Usuarios</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-amarillo">
+                <div class="stat-number">{{ stats.total_libros }}</div>
+                <div class="stat-label"><i class="bi bi-book"></i> Libros</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-verde">
+                <div class="stat-number">{{ stats.prestamos_activos }}</div>
+                <div class="stat-label"><i class="bi bi-journal-check"></i> Prestamos Activos</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-rojo">
+                <div class="stat-number">${{ "{:,.0f}".format(stats.total_recaudado) }}</div>
+                <div class="stat-label"><i class="bi bi-cash-coin"></i> Recaudado</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Libros mas prestados -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-librovivo">
+                    <i class="bi bi-trophy"></i> Libros Mas Prestados
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Libro</th>
+                                <th>Prestamos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for libro in libros_populares %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ libro.titulo }}</td>
+                                <td><span class="badge bg-warning">{{ libro.total_prestamos }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Multas recientes -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-rojo">
+                    <i class="bi bi-exclamation-triangle"></i> Multas Pendientes Recientes
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Monto</th>
+                                <th>Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for multa in multas_recientes %}
+                            <tr>
+                                <td>{{ multa.usuario_nombre }} {{ multa.usuario_apellido }}</td>
+                                <td>${{ "{:,.0f}".format(multa.monto) }}</td>
+                                <td>
+                                    <a href="{{ url_for('multas.ver', multa_id=multa.id) }}" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Accesos rapidos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-librovivo">
+                <div class="card-header card-header-amarillo text-dark">
+                    <i class="bi bi-lightning"></i> Accesos Rapidos
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <a href="{{ url_for('usuarios.crear') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-person-plus"></i><br>Crear Usuario
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('libros.crear') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-book"></i><br>Registrar Libro
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('prestamos.nuevo_paso1') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-journal-plus"></i><br>Nuevo Prestamo
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('reportes.index') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-file-earmark-pdf"></i><br>Reportes
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('resenas.moderar') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-star"></i><br>Moderar Resenas
+                            </a>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('multas.morosos') }}" class="btn btn-librovivo w-100">
+                                <i class="bi bi-cash-coin"></i><br>Morosos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

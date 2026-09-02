@@ -32,7 +32,7 @@
             <!-- Acciones -->
             <div class="d-grid gap-2 mt-3">
                 {% if session.rol in ['admin', 'bibliotecario'] %}
-                <a href="{{ url_for('libros.editar', libro_id=libro.id) }}" class="btn btn-warning text-dark fw-bold">
+                <a href="{{ url_for('libros.editar', id=libro.id) }}" class="btn btn-warning text-dark fw-bold">
                     <i class="bi bi-pencil-square"></i> Editar Libro
                 </a>
                 {% endif %}

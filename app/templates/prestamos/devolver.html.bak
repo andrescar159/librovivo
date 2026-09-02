@@ -87,7 +87,7 @@
             {% endif %}
 
             <!-- Formulario de devolución -->
-            <form method="POST" action="{{ url_for('prestamos.devolver', id=prestamo.id) }}">
+            <form method="POST" action="{{ url_for('prestamos.procesar_devolucion', id=prestamo.id) }}">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-light fw-bold text-secondary">
                         <i class="bi bi-clipboard-check"></i> Datos de la Devolución

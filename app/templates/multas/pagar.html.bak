@@ -84,7 +84,7 @@
             </div>
 
             <!-- Formulario de pago -->
-            <form method="POST" action="{{ url_for('multas.pagar', id=multa.id) }}">
+            <form method="POST" action="{{ url_for('multas.procesar_pago', id=multa.id) }}">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-header bg-success text-white fw-bold">
                         <i class="bi bi-clipboard-check"></i> Datos del Pago

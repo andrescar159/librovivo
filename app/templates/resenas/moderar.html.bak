@@ -57,7 +57,7 @@
                                         Sobre: <a href="{{ url_for('libros.ver', id=r.libro_id) }}">{{ r.titulo_libro|default('Libro') }}</a>
                                     </small>
                                 </div>
-                                <form method="POST" action="{{ url_for('resenas.eliminar', resena_id=r.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar esta reseña?');">
+                                <form method="POST" action="{{ url_for('resenas.eliminar', id=r.id) }}" class="d-inline" onsubmit="return confirm('¿Eliminar esta reseña?');">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-trash"></i> Eliminar
                                     </button>
@@ -100,7 +100,7 @@
                                         Sobre: {{ r.titulo_libro|default('Libro') }}
                                     </small>
                                 </div>
-                                <form method="POST" action="{{ url_for('resenas.restaurar', resena_id=r.id) }}" class="d-inline">
+                                <form method="POST" action="{{ url_for('resenas.restaurar', id=r.id) }}" class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-success">
                                         <i class="bi bi-arrow-counterclockwise"></i> Restaurar
                                     </button>

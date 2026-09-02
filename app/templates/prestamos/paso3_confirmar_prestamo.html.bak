@@ -106,7 +106,7 @@
             </div>
 
             <!-- Formulario de confirmación -->
-            <form method="POST" action="{{ url_for('prestamos.nuevo_paso3') }}">
+            <form method="POST" action="{{ url_for('prestamos.guardar') }}">
                 <input type="hidden" name="estudiante_id" value="{{ estudiante.id }}">
                 <input type="hidden" name="ejemplar_id" value="{{ ejemplar.id }}">
                 <input type="hidden" name="fecha_devolucion_prevista" value="{{ fecha_devolucion.strftime('%Y-%m-%d') }}">

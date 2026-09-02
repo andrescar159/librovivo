@@ -29,10 +29,10 @@
                     <label class="form-label fw-bold text-secondary">Estado</label>
                     <select name="estado" class="form-select">
                         <option value="">Todas</option>
-                        <option value="activa" {% if estado == 'activa' %}selected{% endif %}>Activas</option>
-                        <option value="completada" {% if estado == 'completada' %}selected{% endif %}>Completadas</option>
-                        <option value="vencida" {% if estado == 'vencida' %}selected{% endif %}>Vencidas</option>
-                        <option value="cancelada" {% if estado == 'cancelada' %}selected{% endif %}>Canceladas</option>
+                        <option value="activa" {% if estado_filtro == 'activa' %}selected{% endif %}>Activas</option>
+                        <option value="completada" {% if estado_filtro == 'completada' %}selected{% endif %}>Completadas</option>
+                        <option value="vencida" {% if estado_filtro == 'vencida' %}selected{% endif %}>Vencidas</option>
+                        <option value="cancelada" {% if estado_filtro == 'cancelada' %}selected{% endif %}>Canceladas</option>
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -111,12 +111,12 @@
                     <tr class="{% if r.estado == 'activa' and r.dias_restantes <= 1 %}table-warning{% elif r.estado == 'vencida' %}table-secondary{% endif %}">
                         <td class="font-monospace">#{{ r.id }}</td>
                         <td>
-                            <strong>{{ r.usuario_nombre }}</strong><br>
-                            <small class="text-muted">{{ r.documento|default('')|default('') }}</small>
+                            <strong>{{ r.nombre_estudiante }}</strong><br>
+                            <small class="text-muted">{{ r.documento_estudiante|default('') }}</small>
                         </td>
                         <td>
-                            <strong>{{ r.libro_titulo }}</strong><br>
-                            <small class="text-muted">{{ r.autor_libro|default('')|default('') }}</small>
+                            <strong>{{ r.titulo_libro }}</strong><br>
+                            <small class="text-muted">{{ r.autor_libro|default('') }}</small>
                         </td>
                         <td>{{ r.fecha_reserva.strftime('%d/%m/%Y') }}</td>
                         <td>
@@ -152,23 +152,23 @@
                         <td>
                             {% if r.estado == 'activa' %}
                                 {% if session.rol in ['admin', 'bibliotecario'] %}
-                                    {% if r.ejemplares_disponibles > 0 %}
-                                    <a href="{{ url_for('prestamos.nuevo_paso2', usuario_id=r.usuario_id, libro_id=r.libro_id, desde_reserva=r.id) }}" 
+                                    {% if r.libro_disponible %}
+                                    <a href="{{ url_for('prestamos.nuevo_paso2', estudiante_id=r.usuario_id, libro_id=r.libro_id, desde_reserva=r.id) }}" 
                                        class="btn btn-sm btn-success mb-1" title="Convertir en préstamo">
                                         <i class="bi bi-journal-arrow-down"></i> Prestar
                                     </a>
                                     {% endif %}
-                                    <a href="{{ url_for('reservas.notificar', reserva_id=r.id) }}" class="btn btn-sm btn-primary mb-1" title="Notificar">
+                                    <a href="{{ url_for('reservas.notificar', id=r.id) }}" class="btn btn-sm btn-primary mb-1" title="Notificar">
                                         <i class="bi bi-envelope"></i>
                                     </a>
                                 {% endif %}
                                 {% if session.rol in ['admin', 'bibliotecario'] or session.usuario_id == r.usuario_id %}
-                                <a href="{{ url_for('reservas.cancelar', reserva_id=r.id) }}" class="btn btn-sm btn-outline-danger mb-1" title="Cancelar">
+                                <a href="{{ url_for('reservas.cancelar', id=r.id) }}" class="btn btn-sm btn-outline-danger mb-1" title="Cancelar">
                                     <i class="bi bi-x-lg"></i>
                                 </a>
                                 {% endif %}
                             {% endif %}
-                            <a href="{{ url_for('reservas.ver', reserva_id=r.id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Ver detalle">
+                            <a href="{{ url_for('reservas.ver', id=r.id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Ver detalle">
                                 <i class="bi bi-eye"></i>
                             </a>
                         </td>
@@ -185,19 +185,19 @@
         <ul class="pagination justify-content-center">
             {% if pagina_actual > 1 %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('reservas.lista', page=pagina_actual-1, estado=estado, q=query, fecha=fecha_filtro) }}">
+                <a class="page-link" href="{{ url_for('reservas.lista', page=pagina_actual-1, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">
                     <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
             {% endif %}
             {% for p in range(1, total_paginas + 1) %}
             <li class="page-item {% if p == pagina_actual %}active{% endif %}">
-                <a class="page-link" href="{{ url_for('reservas.lista', page=p, estado=estado, q=query, fecha=fecha_filtro) }}">{{ p }}</a>
+                <a class="page-link" href="{{ url_for('reservas.lista', page=p, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">{{ p }}</a>
             </li>
             {% endfor %}
             {% if pagina_actual < total_paginas %}
             <li class="page-item">
-                <a class="page-link" href="{{ url_for('reservas.lista', page=pagina_actual+1, estado=estado, q=query, fecha=fecha_filtro) }}">
+                <a class="page-link" href="{{ url_for('reservas.lista', page=pagina_actual+1, estado=estado_filtro, q=query, fecha=fecha_filtro) }}">
                     <i class="bi bi-chevron-right"></i>
                 </a>
             </li>

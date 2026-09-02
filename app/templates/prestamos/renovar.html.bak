@@ -67,7 +67,7 @@
                 <p class="mb-0">La nueva fecha de devolución será: <strong>{{ nueva_fecha_devolucion.strftime('%d/%m/%Y') }}</strong> (15 días más).</p>
             </div>
 
-            <form method="POST" action="{{ url_for('prestamos.renovar', id=prestamo.id) }}">
+            <form method="POST" action="{{ url_for('prestamos.confirmar_renovacion', id=prestamo.id) }}">
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body bg-light">
                         <div class="mb-3">

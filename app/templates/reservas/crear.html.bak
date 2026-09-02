@@ -63,7 +63,7 @@
                     <i class="bi bi-clipboard-check"></i> Confirmar Reserva
                 </div>
                 <div class="card-body bg-light">
-                    <form method="POST" action="{{ url_for('reservas.crear', libro_id=libro.id) }}">
+                    <form method="POST" action="{{ url_for('reservas.guardar') }}">
                         
                         {% if not libro %}
                         <div class="mb-3">

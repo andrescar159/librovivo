@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ url_for('libros.editar', libro_id=libro.id) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ url_for('libros.editar', id=libro.id) }}" enctype="multipart/form-data">
                 <div class="row">
                     <!-- Columna izquierda -->
                     <div class="col-lg-8">
@@ -102,7 +102,7 @@
                         <div class="card shadow-sm border-0 mb-4">
                             <div class="card-header bg-info text-white fw-bold d-flex justify-content-between align-items-center">
                                 <span><i class="bi bi-layers"></i> Ejemplares Existentes</span>
-                                <a href="{{ url_for('libros.gestionar_ejemplares', libro_id=libro.id) }}" class="btn btn-light btn-sm">
+                                <a href="{{ url_for('libros.agregar_ejemplar', libro_id=libro.id) }}" class="btn btn-light btn-sm">
                                     <i class="bi bi-plus-lg"></i> Agregar Ejemplar
                                 </a>
                             </div>
@@ -141,7 +141,7 @@
                                                 </td>
                                                 <td>{{ ej.ubicacion|default('-') }}</td>
                                                 <td>
-                                                    <a href="{{ url_for('libros.gestionar_ejemplares', libro_id=libro.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <a href="{{ url_for('libros.editar_ejemplar', id=ej.id) }}" class="btn btn-sm btn-outline-primary">
                                                         <i class="bi bi-pencil"></i>
                                                     </a>
                                                 </td>

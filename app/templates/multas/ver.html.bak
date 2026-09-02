@@ -38,8 +38,8 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <small class="text-muted">Estudiante</small>
-                            <p class="fw-bold mb-1">{{ multa.usuario_nombre|default('N/A') }}</p>
-                            <small class="text-muted">{{ multa.documento|default('')|default('') }}</small>
+                            <p class="fw-bold mb-1">{{ multa.nombre_estudiante|default('N/A') }}</p>
+                            <small class="text-muted">{{ multa.documento_estudiante|default('') }}</small>
                         </div>
                         <div class="col-md-6 text-md-end">
                             <small class="text-muted">Monto</small>
@@ -62,7 +62,7 @@
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">Libro</small>
-                            <p class="mb-0">{{ multa.libro_titulo|default('N/A') }}</p>
+                            <p class="mb-0">{{ multa.titulo_libro|default('N/A') }}</p>
                         </div>
                     </div>
 
@@ -100,7 +100,7 @@
                 </div>
                 <div class="card-footer bg-white">
                     {% if multa.estado == 'pendiente' and session.rol in ['admin', 'bibliotecario'] %}
-                    <a href="{{ url_for('multas.pagar', multa_id=multa.id) }}" class="btn btn-success fw-bold">
+                    <a href="{{ url_for('multas.pagar', id=multa.id) }}" class="btn btn-success fw-bold">
                         <i class="bi bi-cash"></i> Registrar Pago
                     </a>
                     {% endif %}

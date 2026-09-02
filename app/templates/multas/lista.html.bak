@@ -100,12 +100,12 @@
                     <tr class="{% if m.estado == 'pendiente' %}table-warning{% elif m.estado == 'pagada' %}table-success{% endif %}">
                         <td class="font-monospace">#{{ m.id }}</td>
                         <td>
-                            <strong>{{ m.usuario_nombre }}</strong><br>
-                            <small class="text-muted">{{ m.documento|default('') }}</small>
+                            <strong>{{ m.nombre_estudiante }}</strong><br>
+                            <small class="text-muted">{{ m.documento_estudiante }}</small>
                         </td>
                         <td>
                             <small>#{{ m.prestamo_id }}</small><br>
-                            <small class="text-muted">{{ m.libro_titulo|default('') }}</small>
+                            <small class="text-muted">{{ m.titulo_libro|default('') }}</small>
                         </td>
                         <td>
                             <span class="badge {% if m.dias_retraso > 10 %}bg-danger{% else %}bg-warning text-dark{% endif %}">
@@ -136,11 +136,11 @@
                         </td>
                         <td>
                             {% if m.estado == 'pendiente' and session.rol in ['admin', 'bibliotecario'] %}
-                            <a href="{{ url_for('multas.pagar', multa_id=m.id) }}" class="btn btn-sm btn-success mb-1" title="Registrar pago">
+                            <a href="{{ url_for('multas.pagar', id=m.id) }}" class="btn btn-sm btn-success mb-1" title="Registrar pago">
                                 <i class="bi bi-cash"></i> Pagar
                             </a>
                             {% endif %}
-                            <a href="{{ url_for('multas.ver', multa_id=m.id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Ver detalle">
+                            <a href="{{ url_for('multas.ver', id=m.id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Ver detalle">
                                 <i class="bi bi-eye"></i>
                             </a>
                         </td>

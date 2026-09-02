@@ -20,7 +20,7 @@
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm border-0 text-center">
                         <div class="card-body bg-light">
-                            <form method="POST" action="{{ url_for('usuarios.editar', usuario_id=session.usuario_id) }}" 
+                            <form method="POST" action="{{ url_for('usuarios.actualizar_foto') }}" 
                                   enctype="multipart/form-data" id="formFoto">
                                 <div class="position-relative d-inline-block mb-3">
                                     {% if usuario.foto_perfil %}
@@ -85,7 +85,7 @@
                             <i class="bi bi-person-lines-fill"></i> Información Personal
                         </div>
                         <div class="card-body">
-                            <form method="POST" action="{{ url_for('usuarios.editar', usuario_id=session.usuario_id) }}">
+                            <form method="POST" action="{{ url_for('usuarios.actualizar_perfil') }}">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="nombre" class="form-label fw-bold">Nombre</label>
@@ -130,7 +130,7 @@
                             <i class="bi bi-shield-lock"></i> Seguridad - Cambiar Contraseña
                         </div>
                         <div class="card-body">
-                            <form method="POST" action="{{ url_for('auth.cambiar_password') }}">
+                            <form method="POST" action="{{ url_for('usuarios.cambiar_password') }}">
                                 <div class="mb-3">
                                     <label for="password_actual" class="form-label fw-bold">Contraseña Actual <span class="text-danger">*</span></label>
                                     <input type="password" class="form-control" id="password_actual" 
