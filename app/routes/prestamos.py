@@ -8,6 +8,7 @@ from app.services.prestamo_service import (
     crear_prestamo, devolver_prestamo, renovar_prestamo,
     extender_prestamo_bibliotecario, validar_horario_biblioteca
 )
+from app.database import ejecutar_consulta
 from app.models.prestamo import Prestamo
 from app.models.ejemplar import Ejemplar
 from app.models.usuario import Usuario
@@ -24,14 +25,15 @@ def lista():
     """
     estado = request.args.get('estado', 'activo')
     pagina = request.args.get('pagina', 1, type=int)
+    query = request.args.get('q', '').strip()
+    fecha_filtro = request.args.get('fecha', '').strip()
     por_pagina = 10
-    
+
     if estado == 'activo':
         prestamos = Prestamo.listar_activos(pagina=pagina, por_pagina=por_pagina)
-    elif estado == 'vencidos':
+    elif estado in ['vencido', 'vencidos']:
         prestamos = Prestamo.listar_vencidos()
     else:
-        # Todos
         sql = """
             SELECT p.*, l.titulo as libro_titulo,
                    u.nombre as usuario_nombre, u.apellido as usuario_apellido
@@ -42,31 +44,41 @@ def lista():
             ORDER BY p.fecha_prestamo DESC
             LIMIT %s OFFSET %s
         """
-        from app.database import ejecutar_consulta
         prestamos = ejecutar_consulta(sql, (por_pagina, (pagina - 1) * por_pagina), fetchall=True) or []
-    
-    # Calcular total para paginacion
+
     total_sql = "SELECT COUNT(*) as total FROM prestamos WHERE 1=1"
     if estado == 'activo':
         total_sql += " AND estado = 'activo'"
-    elif estado == 'vencidos':
+    elif estado in ['vencido', 'vencidos']:
         total_sql += " AND estado = 'activo' AND fecha_devolucion_prevista < CURDATE()"
     total_result = ejecutar_consulta(total_sql, fetchone=True)
     total_prestamos = total_result['total'] if total_result else 0
-    total_paginas = (total_prestamos + por_pagina - 1) // por_pagina
-    
-    # Resumen (valores por defecto para evitar errores)
+    total_paginas = max((total_prestamos + por_pagina - 1) // por_pagina, 1)
+
+    resumen_row = ejecutar_consulta(
+        """
+        SELECT
+            SUM(CASE WHEN estado = 'activo' THEN 1 ELSE 0 END) AS activos,
+            SUM(CASE WHEN estado = 'devuelto' THEN 1 ELSE 0 END) AS devueltos,
+            SUM(CASE WHEN estado = 'vencido' THEN 1 ELSE 0 END) AS vencidos
+        FROM prestamos
+        """,
+        fetchone=True
+    ) or {}
+
     resumen = {
-        'activos': 0,
-        'devueltos': 0,
-        'vencidos': 0,
-        'vencen_manana': 0
+        'activos': int(resumen_row.get('activos') or 0),
+        'devueltos': int(resumen_row.get('devueltos') or 0),
+        'vencidos': int(resumen_row.get('vencidos') or 0),
+        'vencen_manana': len(Prestamo.listar_vencen_hoy_o_manana(1))
     }
-    
+
     return render_template('prestamos/lista.html',
                          prestamos=prestamos,
                          estado=estado,
                          estado_filtro=estado,
+                         query=query,
+                         fecha_filtro=fecha_filtro,
                          pagina_actual=pagina,
                          total_paginas=total_paginas,
                          resumen=resumen)
